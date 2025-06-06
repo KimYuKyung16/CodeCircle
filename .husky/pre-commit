@@ -1,0 +1,26 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# 현재 브랜치 이름 확인
+BRANCH=$(git symbolic-ref --short HEAD)
+
+FILES=$(git diff --cached --name-only)
+
+# 브랜치 이름에 따라 검사
+if echo "$BRANCH" | grep -q 'front'; then
+  echo "현재 브랜치 '$BRANCH'는 프론트 커밋만 허용됩니다."
+  if echo "$FILES" | grep -v '^front/' | grep -q '.'; then
+    echo "'front/' 이외의 파일이 포함되어 있어 커밋이 중단됩니다."
+    echo "$FILES" | grep -v '^front/'
+    exit 1
+  fi
+elif echo "$BRANCH" | grep -q 'back'; then
+  echo "현재 브랜치 '$BRANCH'는 백엔드 커밋만 허용됩니다."
+  if echo "$FILES" | grep -v '^back/' | grep -q '.'; then
+    echo "'back/' 이외의 파일이 포함되어 있어 커밋이 중단됩니다."
+    echo "$FILES" | grep -v '^back/'
+    exit 1
+  fi
+else
+  echo "제한이 없는 브랜치입니다.(develop or main)"
+fi
