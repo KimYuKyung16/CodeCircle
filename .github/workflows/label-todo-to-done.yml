@@ -1,0 +1,31 @@
+name: 이슈가 닫혔을 때 todo 라벨을 done으로 바꾸기
+
+on:
+  issues:
+    types: [closed]
+
+jobs:
+  label_done:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Replace 'todo' label with 'done'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const labels = context.payload.issue.labels.map(label => label.name);
+
+            if (!labels.includes('todo')) {
+              console.log("todo라벨이 없습니다.");
+              return;
+            }
+
+            const updatedLabels = labels
+              .filter(label => label !== 'todo')
+              .concat('done');
+
+            await github.rest.issues.update({
+              ...context.repo,
+              issue_number: context.issue.number,
+              labels: updatedLabels,
+            });
