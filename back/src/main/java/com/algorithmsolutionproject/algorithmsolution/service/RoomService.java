@@ -1,7 +1,13 @@
 package com.algorithmsolutionproject.algorithmsolution.service;
 
+import com.algorithmsolutionproject.algorithmsolution.dto.room.CreateRoomRequest;
+import com.algorithmsolutionproject.algorithmsolution.dto.room.CreateRoomResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.GetAllRoomsResponse;
 import com.algorithmsolutionproject.algorithmsolution.entity.Room;
+import com.algorithmsolutionproject.algorithmsolution.entity.RoomParticipant;
+import com.algorithmsolutionproject.algorithmsolution.entity.RoomProblem;
+import com.algorithmsolutionproject.algorithmsolution.repository.RoomParticipantRepository;
+import com.algorithmsolutionproject.algorithmsolution.repository.RoomProblemRepository;
 import com.algorithmsolutionproject.algorithmsolution.repository.RoomRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -14,11 +20,67 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class RoomService {
     private final RoomRepository roomRepository;
+    private final RoomProblemRepository roomProblemRepository;
+    private final RoomParticipantRepository roomParticipantRepository;
 
     // 방 전체 조회
     @Transactional
     public List<GetAllRoomsResponse> getAllRooms() {
         List<Room> activeRooms = roomRepository.findByStatusNot(Room.RoomStatus.FINISHED);
         return GetAllRoomsResponse.fromList(activeRooms);
+    }
+
+    // 방 생성
+    @Transactional
+    public CreateRoomResponse createRoom(Integer userId, CreateRoomRequest createRoomRequest) {
+        if (userId == null) {
+            throw new IllegalArgumentException("userId는 필수입니다.");
+        }
+        Room savedRoom = saveRoom(createRoomRequest);
+        addSelectedProblems(savedRoom.getId(), createRoomRequest.problems());
+        registerHost(savedRoom.getId(), userId);
+        return new CreateRoomResponse(savedRoom.getId());
+    }
+
+    // 방 저장
+    private Room saveRoom(CreateRoomRequest request) {
+        if (request.title() == null || request.title().isBlank()) {
+            throw new IllegalArgumentException("방 제목은 필수입니다.");
+        }
+        if (request.duration() == null || request.duration() <= 0) {
+            throw new IllegalArgumentException("방 지속 시간은 0보다 커야 합니다.");
+        }
+        if (request.language() == null || request.language().isBlank()) {
+            throw new IllegalArgumentException("사용 언어는 필수입니다.");
+        }
+
+        Room room = Room.builder()
+                .title(request.title())
+                .duration(request.duration())
+                .language(request.language())
+                .password(request.password())
+                .build();
+
+        return roomRepository.save(room);
+    }
+
+    // 선택한 문제 추가
+    private void addSelectedProblems(Integer roomId, List<Integer> problems) {
+        for (Integer problemId : problems) {
+            roomProblemRepository.save(RoomProblem.builder()
+                    .roomId(roomId)
+                    .problemId(problemId)
+                    .build());
+        }
+    }
+
+    // 방장으로 등록
+    private void registerHost(Integer roomId, Integer userId) {
+        RoomParticipant host = RoomParticipant.builder()
+                .roomId(roomId)
+                .userId(userId)
+                .role(RoomParticipant.Role.HOST)
+                .build();
+        roomParticipantRepository.save(host);
     }
 }
