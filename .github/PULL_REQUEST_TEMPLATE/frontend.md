@@ -1,3 +1,11 @@
+---
+name: Frontend PR Template
+about: 프론트엔드 작업을 위한 PR 템플릿
+title: '[FRONTEND]'
+labels: frontend
+assignees: ''
+---
+
 ## ✨ 개요
 
 어떤 작업을 했는지 요약
