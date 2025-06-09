@@ -1,3 +1,11 @@
+---
+name: Backend PR Template
+about: 백엔드 작업을 위한 PR 템플릿
+title: '[BACKEND]'
+labels: backend
+assignees: ''
+---
+
 ## ✨ 개요
 
 어떤 작업을 했는지 요약
