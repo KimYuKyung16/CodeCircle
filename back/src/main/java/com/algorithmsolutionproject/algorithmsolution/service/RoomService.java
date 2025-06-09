@@ -1,14 +1,17 @@
 package com.algorithmsolutionproject.algorithmsolution.service;
 
+import com.algorithmsolutionproject.algorithmsolution.dto.problem.GetRoomDetailProblemDTO;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.CreateRoomRequest;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.CreateRoomResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.GetAllRoomsResponse;
+import com.algorithmsolutionproject.algorithmsolution.dto.room.GetRoomDetailResponse;
 import com.algorithmsolutionproject.algorithmsolution.entity.Room;
 import com.algorithmsolutionproject.algorithmsolution.entity.RoomParticipant;
 import com.algorithmsolutionproject.algorithmsolution.entity.RoomProblem;
 import com.algorithmsolutionproject.algorithmsolution.repository.RoomParticipantRepository;
 import com.algorithmsolutionproject.algorithmsolution.repository.RoomProblemRepository;
 import com.algorithmsolutionproject.algorithmsolution.repository.RoomRepository;
+import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,6 +43,15 @@ public class RoomService {
         addSelectedProblems(savedRoom.getId(), createRoomRequest.problems());
         registerHost(savedRoom.getId(), userId);
         return new CreateRoomResponse(savedRoom.getId());
+    }
+
+    // 방 상세 조회
+    @Transactional
+    public GetRoomDetailResponse getRoomDetail(int roomId) {
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 방이 없습니다."));
+        List<GetRoomDetailProblemDTO> problems = roomProblemRepository.findProblemsByRoomId(roomId);
+        return GetRoomDetailResponse.from(room, problems);
     }
 
     // 방 저장
