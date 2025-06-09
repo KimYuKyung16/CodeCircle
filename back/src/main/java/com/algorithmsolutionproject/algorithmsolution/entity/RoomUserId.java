@@ -1,29 +1,20 @@
 package com.algorithmsolutionproject.algorithmsolution.entity;
 
+import jakarta.persistence.Embeddable;
 import java.io.Serializable;
-import java.util.Objects;
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+@Embeddable
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode
 public class RoomUserId implements Serializable {
     private int roomId;
     private int userId;
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof RoomUserId that)) return false;
-        return roomId == that.roomId && userId == that.userId;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(roomId, userId);
-    }
 }
