@@ -1,0 +1,24 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.java]
+indent_style = space
+indent_size = 4
+tab_width = 4
+continuation_indent_size = 8
+
+# IntelliJ-specific: Import 정렬
+ij_imports_layout = *,java,javax,org,com,^com.algorithmsolutionproject.algorithmsolution,static
+ij_formatter_off_tag = @formatter:off
+ij_formatter_on_tag = @formatter:on
+
+# Optional: IntelliJ formatting behaviors
+ij_java_blank_lines_after_imports = 1
+ij_java_blank_lines_before_method = 1
+ij_java_class_count_to_use_import_on_demand = 999
+ij_java_names_count_to_use_import_on_demand = 999
