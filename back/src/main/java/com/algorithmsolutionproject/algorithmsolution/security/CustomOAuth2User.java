@@ -5,7 +5,18 @@ import java.util.Map;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
-public record CustomOAuth2User(OAuth2User delegate) implements OAuth2User {
+public record CustomOAuth2User(OAuth2User delegate, Integer userId) implements OAuth2User, AuthenticatedUser {
+    @Override
+    public Integer userId() {
+        return userId;
+    }
+
+    @Override
+    public String email() {
+        return (String) delegate.getAttribute("email");
+    }
+
+
     @Override
     public Map<String, Object> getAttributes() {
         return delegate.getAttributes();

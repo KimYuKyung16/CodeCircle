@@ -22,7 +22,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         String email = oAuth2User.getAttribute("email");
         String name = oAuth2User.getAttribute("name");
 
-        userRepository.findByEmail(email)
+        User user = userRepository.findByEmail(email)
                 .orElseGet(() -> userRepository.save(
                         User.builder()
                                 .email(email)
@@ -30,6 +30,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                                 .build()
                 ));
 
-        return new CustomOAuth2User(oAuth2User);
+        return new CustomOAuth2User(oAuth2User, user.getId());
     }
 }
