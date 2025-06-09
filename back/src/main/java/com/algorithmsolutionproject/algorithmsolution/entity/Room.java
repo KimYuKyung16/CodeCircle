@@ -43,6 +43,7 @@ public class Room {
     @Column(name = "password", length = 200)
     private String password;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private RoomStatus status = RoomStatus.WAITING;
