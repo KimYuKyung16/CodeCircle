@@ -8,6 +8,7 @@ import com.algorithmsolutionproject.algorithmsolution.dto.room.GetRoomDetailResp
 import com.algorithmsolutionproject.algorithmsolution.entity.Room;
 import com.algorithmsolutionproject.algorithmsolution.entity.RoomParticipant;
 import com.algorithmsolutionproject.algorithmsolution.entity.RoomProblem;
+import com.algorithmsolutionproject.algorithmsolution.entity.RoomUserId;
 import com.algorithmsolutionproject.algorithmsolution.repository.RoomParticipantRepository;
 import com.algorithmsolutionproject.algorithmsolution.repository.RoomProblemRepository;
 import com.algorithmsolutionproject.algorithmsolution.repository.RoomRepository;
@@ -88,9 +89,9 @@ public class RoomService {
 
     // 방장으로 등록
     private void registerHost(Integer roomId, Integer userId) {
+        RoomUserId id = new RoomUserId(roomId, userId);
         RoomParticipant host = RoomParticipant.builder()
-                .roomId(roomId)
-                .userId(userId)
+                .id(id)
                 .role(RoomParticipant.Role.HOST)
                 .build();
         roomParticipantRepository.save(host);
