@@ -1,4 +1,4 @@
-package com.algorithmsolutionproject.algorithmsolution.dto.problem;
+package com.algorithmsolutionproject.algorithmsolution.dto.room;
 
 public record GetRoomDetailProblemDTO(
         Integer id,

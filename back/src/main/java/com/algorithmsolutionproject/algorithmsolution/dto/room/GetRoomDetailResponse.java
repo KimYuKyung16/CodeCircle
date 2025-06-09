@@ -1,6 +1,5 @@
 package com.algorithmsolutionproject.algorithmsolution.dto.room;
 
-import com.algorithmsolutionproject.algorithmsolution.dto.problem.GetRoomDetailProblemDTO;
 import com.algorithmsolutionproject.algorithmsolution.entity.Room;
 import java.util.List;
 import lombok.Builder;
