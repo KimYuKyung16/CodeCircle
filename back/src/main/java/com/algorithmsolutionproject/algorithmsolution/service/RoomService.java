@@ -2,19 +2,27 @@ package com.algorithmsolutionproject.algorithmsolution.service;
 
 import com.algorithmsolutionproject.algorithmsolution.dto.room.CreateRoomRequest;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.CreateRoomResponse;
+import com.algorithmsolutionproject.algorithmsolution.dto.room.EndSolveProblemResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.GetAllRoomsResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.GetRoomDetailProblemDTO;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.GetRoomDetailResponse;
+import com.algorithmsolutionproject.algorithmsolution.dto.room.StartSolveProblemResponse;
+import com.algorithmsolutionproject.algorithmsolution.dto.room.TimerEndResponse;
 import com.algorithmsolutionproject.algorithmsolution.entity.Room;
 import com.algorithmsolutionproject.algorithmsolution.entity.RoomParticipant;
 import com.algorithmsolutionproject.algorithmsolution.entity.RoomProblem;
+import com.algorithmsolutionproject.algorithmsolution.entity.RoomUserId;
 import com.algorithmsolutionproject.algorithmsolution.repository.RoomParticipantRepository;
 import com.algorithmsolutionproject.algorithmsolution.repository.RoomProblemRepository;
 import com.algorithmsolutionproject.algorithmsolution.repository.RoomRepository;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +33,8 @@ public class RoomService {
     private final RoomRepository roomRepository;
     private final RoomProblemRepository roomProblemRepository;
     private final RoomParticipantRepository roomParticipantRepository;
+    private final SimpMessagingTemplate messagingTemplate;
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
     // 방 전체 조회
     @Transactional
@@ -52,6 +62,45 @@ public class RoomService {
                 .orElseThrow(() -> new EntityNotFoundException("해당 방이 없습니다."));
         List<GetRoomDetailProblemDTO> problems = roomProblemRepository.findProblemsByRoomId(roomId);
         return GetRoomDetailResponse.from(room, problems);
+    }
+
+    // 문제풀이 시작
+    @Transactional
+    public void startSolveProblem(Integer roomId) {
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 방입니다."));
+//        if (!room.isHost(userId)) {
+//            throw new AccessDeniedException("방장만 게임을 시작할 수 있습니다.");
+//        }
+        if (room.getStatus() != Room.RoomStatus.WAITING) {
+            throw new IllegalStateException("이미 시작된 게임입니다.");
+        }
+        room.setStatus(Room.RoomStatus.PLAYING);
+        roomRepository.save(room);
+
+        long now = System.currentTimeMillis();
+        int duration = room.getDuration();
+
+        StartSolveProblemResponse response = new StartSolveProblemResponse("게임이 시작되었습니다", now, duration);
+        messagingTemplate.convertAndSend("/topic/room/" + roomId + "/start", response);
+
+        scheduler.schedule(() -> {
+            messagingTemplate.convertAndSend("/topic/room/" + roomId + "/end", new TimerEndResponse("타이머 종료"));
+        }, duration, TimeUnit.SECONDS);
+    }
+
+    // 문제풀이 종료
+    @Transactional
+    public void endSolveProblem(Integer roomId, Integer userId) {
+        RoomUserId id = new RoomUserId(roomId, userId);
+        RoomParticipant participant = roomParticipantRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("해당 참여자를 찾을 수 없습니다."));
+
+        participant.setSolved(true);
+        roomParticipantRepository.save(participant);
+
+        EndSolveProblemResponse response = new EndSolveProblemResponse("풀이를 완료한 사람이 있습니다.");
+        messagingTemplate.convertAndSend("/topic/room/" + roomId + "/result", response);
     }
 
     // 방 저장
@@ -88,9 +137,9 @@ public class RoomService {
 
     // 방장으로 등록
     private void registerHost(Integer roomId, Integer userId) {
+        RoomUserId id = new RoomUserId(roomId, userId);
         RoomParticipant host = RoomParticipant.builder()
-                .roomId(roomId)
-                .userId(userId)
+                .id(id)
                 .role(RoomParticipant.Role.HOST)
                 .build();
         roomParticipantRepository.save(host);

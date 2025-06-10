@@ -1,11 +1,10 @@
 package com.algorithmsolutionproject.algorithmsolution.entity;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.Id;
-import jakarta.persistence.IdClass;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
@@ -18,7 +17,6 @@ import lombok.ToString;
 
 @Entity
 @Table(name = "room_participants")
-@IdClass(RoomUserId.class)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -26,13 +24,8 @@ import lombok.ToString;
 @ToString
 @Builder
 public class RoomParticipant {
-    @Id
-    @Column(name = "room_id")
-    private int roomId;
-
-    @Id
-    @Column(name = "user_id")
-    private int userId;
+    @EmbeddedId
+    private RoomUserId id;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
@@ -55,6 +48,11 @@ public class RoomParticipant {
     @PrePersist
     public void prePersist() {
         this.joinedAt = LocalDateTime.now();
+    }
+
+    public void leave() {
+        this.isLeaved = true;
+        this.leavedAt = LocalDateTime.now();
     }
 
     public enum Role {
