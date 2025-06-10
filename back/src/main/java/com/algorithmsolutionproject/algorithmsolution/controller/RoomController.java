@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -56,5 +57,12 @@ public class RoomController {
 
         GetRoomDetailResponse response = roomService.getRoomDetail(roomId);
         return ResponseEntity.ok(ApiResponse.success("방을 성공적으로 조회했습니다.", response));
+    }
+
+    // 문제풀이 시작
+    @PatchMapping("/{roomId}/start")
+    public ResponseEntity<ApiResponse<Void>> startSolveProblem(@PathVariable("roomId") Integer roomId) {
+        roomService.startSolveProblem(roomId);
+        return ResponseEntity.ok(ApiResponse.success("문제 풀이가 시작되었습니다.", null));
     }
 }
