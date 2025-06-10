@@ -2,6 +2,7 @@ package com.algorithmsolutionproject.algorithmsolution.service;
 
 import com.algorithmsolutionproject.algorithmsolution.dto.problem.ParsedProblemDTO;
 import com.algorithmsolutionproject.algorithmsolution.dto.problem.ProblemDetailResponse;
+import com.algorithmsolutionproject.algorithmsolution.dto.problem.TestCaseDTO;
 import com.algorithmsolutionproject.algorithmsolution.entity.Problem;
 import com.algorithmsolutionproject.algorithmsolution.entity.TestCase;
 import com.algorithmsolutionproject.algorithmsolution.repository.ProblemRepository;
@@ -44,7 +45,7 @@ public class ProblemService {
                     ParsedProblemDTO parsedProblem = getProblemAndParse(num);
                     return saveProblemWithTestCases(parsedProblem);
                 });
-        List<TestCase> testCases = testCaseRepository.findByProblemId(problem.getId());
+        List<TestCaseDTO> testCases = testCaseRepository.findByProblemId(problem.getId());
 
         return ProblemDetailResponse.from(problem, testCases);
     }
@@ -54,7 +55,7 @@ public class ProblemService {
     public ProblemDetailResponse getProblemDetailById(Integer problemId) {
         Problem problem = problemRepository.findById(problemId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 문제를 찾을 수 없습니다."));
-        List<TestCase> testCases = testCaseRepository.findByProblemId(problem.getId());
+        List<TestCaseDTO> testCases = testCaseRepository.findByProblemId(problem.getId());
 
         return ProblemDetailResponse.from(problem, testCases);
     }

@@ -27,7 +27,7 @@ import lombok.ToString;
 public class TestCase {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private int id;
 
     @Column(columnDefinition = "TEXT")
     private String input;
