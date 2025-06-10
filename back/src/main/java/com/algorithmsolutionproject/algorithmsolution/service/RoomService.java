@@ -2,6 +2,7 @@ package com.algorithmsolutionproject.algorithmsolution.service;
 
 import com.algorithmsolutionproject.algorithmsolution.dto.room.CreateRoomRequest;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.CreateRoomResponse;
+import com.algorithmsolutionproject.algorithmsolution.dto.room.EndSolveProblemResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.GetAllRoomsResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.GetRoomDetailProblemDTO;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.GetRoomDetailResponse;
@@ -86,6 +87,20 @@ public class RoomService {
         scheduler.schedule(() -> {
             messagingTemplate.convertAndSend("/topic/room/" + roomId + "/end", new TimerEndResponse("타이머 종료"));
         }, duration, TimeUnit.SECONDS);
+    }
+
+    // 문제풀이 종료
+    @Transactional
+    public void endSolveProblem(Integer roomId, Integer userId) {
+        RoomUserId id = new RoomUserId(roomId, userId);
+        RoomParticipant participant = roomParticipantRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("해당 참여자를 찾을 수 없습니다."));
+
+        participant.setSolved(true);
+        roomParticipantRepository.save(participant);
+
+        EndSolveProblemResponse response = new EndSolveProblemResponse("풀이를 완료한 사람이 있습니다.");
+        messagingTemplate.convertAndSend("/topic/room/" + roomId + "/result", response);
     }
 
     // 방 저장

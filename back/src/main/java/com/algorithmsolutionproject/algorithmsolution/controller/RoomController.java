@@ -65,4 +65,14 @@ public class RoomController {
         roomService.startSolveProblem(roomId);
         return ResponseEntity.ok(ApiResponse.success("문제 풀이가 시작되었습니다.", null));
     }
+
+    // 문제풀이 종료
+    @PatchMapping("/{roomId}/end")
+    public ResponseEntity<ApiResponse<Void>> endSolveProblem(Authentication authentication,
+                                                             @PathVariable("roomId") Integer roomId) {
+        CustomUserPrincipal principal = (CustomUserPrincipal) authentication.getPrincipal();
+        int userId = principal.userId();
+        roomService.endSolveProblem(roomId, userId);
+        return ResponseEntity.ok(ApiResponse.success("문제 풀이가 종료되었습니다.", null));
+    }
 }
