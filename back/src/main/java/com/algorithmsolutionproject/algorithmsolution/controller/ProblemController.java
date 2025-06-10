@@ -19,10 +19,19 @@ public class ProblemController {
     private final ProblemService problemService;
 
     // 문제 상세 조회 (num 이용) - db에 없는 경우도 고려
-    @GetMapping("/{problemNum}")
+    @GetMapping("/num/{problemNum}")
     public ResponseEntity<ApiResponse<ProblemDetailResponse>> getProblemDetailByNum(
             @PathVariable("problemNum") Integer problemNum) {
         ProblemDetailResponse response = problemService.getProblemDetailByNum(problemNum);
+        log.info("문제 조회 결과 = {}", response);
+        return ResponseEntity.ok(ApiResponse.success("문제를 성공적으로 조회했습니다", response));
+    }
+
+    // 문제 상세 조회 (id 이용)
+    @GetMapping("/id/{problemId}")
+    public ResponseEntity<ApiResponse<ProblemDetailResponse>> getProblemDetailById(
+            @PathVariable("problemId") Integer problemId) {
+        ProblemDetailResponse response = problemService.getProblemDetailById(problemId);
         log.info("문제 조회 결과 = {}", response);
         return ResponseEntity.ok(ApiResponse.success("문제를 성공적으로 조회했습니다", response));
     }
