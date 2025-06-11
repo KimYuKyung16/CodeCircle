@@ -7,6 +7,8 @@ import com.algorithmsolutionproject.algorithmsolution.dto.room.ExecuteCodeAndSto
 import com.algorithmsolutionproject.algorithmsolution.dto.room.ExecuteCodeAndStoreResultResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.GetAllRoomsResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.GetRoomDetailResponse;
+import com.algorithmsolutionproject.algorithmsolution.dto.room.SubmitCodeRequest;
+import com.algorithmsolutionproject.algorithmsolution.dto.room.SubmitCodeResponse;
 import com.algorithmsolutionproject.algorithmsolution.security.CustomUserPrincipal;
 import com.algorithmsolutionproject.algorithmsolution.service.CodeService;
 import com.algorithmsolutionproject.algorithmsolution.service.RoomService;
@@ -89,5 +91,17 @@ public class RoomController {
     ) {
         ExecuteCodeAndStoreResultResponse response = codeService.executeCode(roomId, problemId, request.code());
         return ResponseEntity.ok(ApiResponse.success("코드 실행 결과입니다.", response));
+    }
+
+    // 코드 제출
+    @PostMapping("/{roomId}/problems/{problemId}/submit")
+    public ResponseEntity<ApiResponse<SubmitCodeResponse>> submitCode(Authentication authentication,
+                                                                      @PathVariable("roomId") Integer roomId,
+                                                                      @PathVariable("problemId") Integer problemId,
+                                                                      @RequestBody SubmitCodeRequest request) throws Exception {
+        CustomUserPrincipal principal = (CustomUserPrincipal) authentication.getPrincipal();
+        int userId = principal.userId();
+        SubmitCodeResponse response = codeService.submitCode(userId, roomId, problemId, request.code());
+        return ResponseEntity.ok(ApiResponse.success("코드를 성공적으로 제출했습니다.", response));
     }
 }
