@@ -3,9 +3,16 @@ package com.algorithmsolutionproject.algorithmsolution.controller;
 import com.algorithmsolutionproject.algorithmsolution.dto.common.ApiResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.CreateRoomRequest;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.CreateRoomResponse;
+import com.algorithmsolutionproject.algorithmsolution.dto.room.ExecuteCodeAndStoreResultRequest;
+import com.algorithmsolutionproject.algorithmsolution.dto.room.ExecuteCodeAndStoreResultResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.GetAllRoomsResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.GetRoomDetailResponse;
+import com.algorithmsolutionproject.algorithmsolution.dto.room.GetSolvedProblemResultResponse;
+import com.algorithmsolutionproject.algorithmsolution.dto.room.GetSubmissionsInRoomResponse;
+import com.algorithmsolutionproject.algorithmsolution.dto.room.SubmitCodeRequest;
+import com.algorithmsolutionproject.algorithmsolution.dto.room.SubmitCodeResponse;
 import com.algorithmsolutionproject.algorithmsolution.security.CustomUserPrincipal;
+import com.algorithmsolutionproject.algorithmsolution.service.CodeService;
 import com.algorithmsolutionproject.algorithmsolution.service.RoomService;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -28,6 +35,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/apis/rooms")
 public class RoomController {
     private final RoomService roomService;
+    private final CodeService codeService;
 
     // 방 전체 조회
     @GetMapping
@@ -74,5 +82,47 @@ public class RoomController {
         int userId = principal.userId();
         roomService.endSolveProblem(roomId, userId);
         return ResponseEntity.ok(ApiResponse.success("문제 풀이가 종료되었습니다.", null));
+    }
+
+    // 코드 실행 결과 조회
+    @PostMapping("/{roomId}/problems/{problemId}/execution")
+    public ResponseEntity<ApiResponse<ExecuteCodeAndStoreResultResponse>> executeCodeAndStoreResult(
+            @PathVariable("roomId") Integer roomId,
+            @PathVariable("problemId") Integer problemId,
+            @RequestBody ExecuteCodeAndStoreResultRequest request
+    ) {
+        ExecuteCodeAndStoreResultResponse response = codeService.executeCode(roomId, problemId, request.code());
+        return ResponseEntity.ok(ApiResponse.success("코드 실행 결과입니다.", response));
+    }
+
+    // 코드 제출
+    @PostMapping("/{roomId}/problems/{problemId}/submit")
+    public ResponseEntity<ApiResponse<SubmitCodeResponse>> submitCode(Authentication authentication,
+                                                                      @PathVariable("roomId") Integer roomId,
+                                                                      @PathVariable("problemId") Integer problemId,
+                                                                      @RequestBody SubmitCodeRequest request) {
+        CustomUserPrincipal principal = (CustomUserPrincipal) authentication.getPrincipal();
+        int userId = principal.userId();
+        SubmitCodeResponse response = codeService.submitCode(userId, roomId, problemId, request.code());
+        return ResponseEntity.ok(ApiResponse.success("코드를 성공적으로 제출했습니다.", response));
+    }
+
+    // 특정 문제에 대한 내 제출 내역 조회
+    @GetMapping("/{roomId}/problems/{problemId}/submissions")
+    public ResponseEntity<ApiResponse<GetSubmissionsInRoomResponse>> getSubmttionsInRoom(Authentication authentication,
+                                                                                         @PathVariable("roomId") Integer roomId,
+                                                                                         @PathVariable("problemId") Integer problemId) {
+        CustomUserPrincipal principal = (CustomUserPrincipal) authentication.getPrincipal();
+        int userId = principal.userId();
+        GetSubmissionsInRoomResponse response = roomService.getSubmissionsInRoom(userId, roomId, problemId);
+        return ResponseEntity.ok(ApiResponse.success("제출 내역을 성공적으로 조회했습니다.", response));
+    }
+
+    // 문제 풀이 최종 결과
+    @GetMapping("/{roomId}/result")
+    public ResponseEntity<ApiResponse<GetSolvedProblemResultResponse>> getSolveProblemResult(
+            @PathVariable("roomId") Integer roomId) {
+        GetSolvedProblemResultResponse response = roomService.getSolveProblemResult(roomId);
+        return ResponseEntity.ok(ApiResponse.success("결과를 성공적으로 조회했습니다.", response));
     }
 }
