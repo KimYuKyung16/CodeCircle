@@ -2,10 +2,13 @@ package com.algorithmsolutionproject.algorithmsolution.service;
 
 import com.algorithmsolutionproject.algorithmsolution.dto.problem.ParsedProblemDTO;
 import com.algorithmsolutionproject.algorithmsolution.dto.problem.ProblemDetailResponse;
+import com.algorithmsolutionproject.algorithmsolution.dto.problem.SubmissonsByProblemIdResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.problem.TestCaseDTO;
 import com.algorithmsolutionproject.algorithmsolution.entity.Problem;
+import com.algorithmsolutionproject.algorithmsolution.entity.Submission;
 import com.algorithmsolutionproject.algorithmsolution.entity.TestCase;
 import com.algorithmsolutionproject.algorithmsolution.repository.ProblemRepository;
+import com.algorithmsolutionproject.algorithmsolution.repository.SubmissionRepository;
 import com.algorithmsolutionproject.algorithmsolution.repository.TestCaseRepository;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.ArrayList;
@@ -31,6 +34,7 @@ import org.springframework.web.client.RestTemplate;
 public class ProblemService {
     private final ProblemRepository problemRepository;
     private final TestCaseRepository testCaseRepository;
+    private final SubmissionRepository submissionRepository;
     @Value("${algorithm.site}")
     private String algorithmSite;
     @Value("${user.agent}")
@@ -58,6 +62,13 @@ public class ProblemService {
         List<TestCaseDTO> testCases = testCaseRepository.findByProblemId(problem.getId());
 
         return ProblemDetailResponse.from(problem, testCases);
+    }
+
+    // 제출 내역 조회
+    @Transactional
+    public SubmissonsByProblemIdResponse getSubmissionsByProblemId(Integer userId, Integer problemId) {
+        List<Submission> submissions = submissionRepository.findByUserIdAndProblemId(userId, problemId);
+        return SubmissonsByProblemIdResponse.from(submissions);
     }
 
     private ParsedProblemDTO getProblemAndParse(Integer num) {
