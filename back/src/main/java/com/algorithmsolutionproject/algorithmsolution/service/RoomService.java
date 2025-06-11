@@ -6,15 +6,18 @@ import com.algorithmsolutionproject.algorithmsolution.dto.room.EndSolveProblemRe
 import com.algorithmsolutionproject.algorithmsolution.dto.room.GetAllRoomsResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.GetRoomDetailProblemDTO;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.GetRoomDetailResponse;
+import com.algorithmsolutionproject.algorithmsolution.dto.room.GetSubmissionsInRoomResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.StartSolveProblemResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.TimerEndResponse;
 import com.algorithmsolutionproject.algorithmsolution.entity.Room;
 import com.algorithmsolutionproject.algorithmsolution.entity.RoomParticipant;
 import com.algorithmsolutionproject.algorithmsolution.entity.RoomProblem;
 import com.algorithmsolutionproject.algorithmsolution.entity.RoomUserId;
+import com.algorithmsolutionproject.algorithmsolution.entity.Submission;
 import com.algorithmsolutionproject.algorithmsolution.repository.RoomParticipantRepository;
 import com.algorithmsolutionproject.algorithmsolution.repository.RoomProblemRepository;
 import com.algorithmsolutionproject.algorithmsolution.repository.RoomRepository;
+import com.algorithmsolutionproject.algorithmsolution.repository.SubmissionRepository;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -35,6 +38,7 @@ public class RoomService {
     private final RoomParticipantRepository roomParticipantRepository;
     private final SimpMessagingTemplate messagingTemplate;
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+    private final SubmissionRepository submissionRepository;
 
     // 방 전체 조회
     @Transactional
@@ -101,6 +105,13 @@ public class RoomService {
 
         EndSolveProblemResponse response = new EndSolveProblemResponse("풀이를 완료한 사람이 있습니다.");
         messagingTemplate.convertAndSend("/topic/room/" + roomId + "/result", response);
+    }
+
+    // 특정 문제에 대한 내 제출 내역 조회
+    public GetSubmissionsInRoomResponse getSubmissionsInRoom(Integer userId, Integer roomId, Integer problemId) {
+        List<Submission> submissions = submissionRepository.findByRoomIdAndUserIdAndProblemId(userId, roomId,
+                problemId);
+        return GetSubmissionsInRoomResponse.from(submissions);
     }
 
     // 방 저장

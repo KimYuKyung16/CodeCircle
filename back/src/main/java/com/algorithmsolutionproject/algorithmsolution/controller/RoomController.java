@@ -7,6 +7,7 @@ import com.algorithmsolutionproject.algorithmsolution.dto.room.ExecuteCodeAndSto
 import com.algorithmsolutionproject.algorithmsolution.dto.room.ExecuteCodeAndStoreResultResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.GetAllRoomsResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.GetRoomDetailResponse;
+import com.algorithmsolutionproject.algorithmsolution.dto.room.GetSubmissionsInRoomResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.SubmitCodeRequest;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.SubmitCodeResponse;
 import com.algorithmsolutionproject.algorithmsolution.security.CustomUserPrincipal;
@@ -98,10 +99,21 @@ public class RoomController {
     public ResponseEntity<ApiResponse<SubmitCodeResponse>> submitCode(Authentication authentication,
                                                                       @PathVariable("roomId") Integer roomId,
                                                                       @PathVariable("problemId") Integer problemId,
-                                                                      @RequestBody SubmitCodeRequest request) throws Exception {
+                                                                      @RequestBody SubmitCodeRequest request) {
         CustomUserPrincipal principal = (CustomUserPrincipal) authentication.getPrincipal();
         int userId = principal.userId();
         SubmitCodeResponse response = codeService.submitCode(userId, roomId, problemId, request.code());
         return ResponseEntity.ok(ApiResponse.success("코드를 성공적으로 제출했습니다.", response));
+    }
+
+    // 특정 문제에 대한 내 제출 내역 조회
+    @GetMapping("/{roomId}/problems/{problemId}/submissions")
+    public ResponseEntity<ApiResponse<GetSubmissionsInRoomResponse>> getSubmttionsInRoom(Authentication authentication,
+                                                                                         @PathVariable("roomId") Integer roomId,
+                                                                                         @PathVariable("problemId") Integer problemId) {
+        CustomUserPrincipal principal = (CustomUserPrincipal) authentication.getPrincipal();
+        int userId = principal.userId();
+        GetSubmissionsInRoomResponse response = roomService.getSubmissionsInRoom(userId, roomId, problemId);
+        return ResponseEntity.ok(ApiResponse.success("제출 내역을 성공적으로 조회했습니다.", response));
     }
 }
