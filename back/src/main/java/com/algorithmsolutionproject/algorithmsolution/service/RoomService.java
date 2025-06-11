@@ -6,6 +6,7 @@ import com.algorithmsolutionproject.algorithmsolution.dto.room.EndSolveProblemRe
 import com.algorithmsolutionproject.algorithmsolution.dto.room.GetAllRoomsResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.GetRoomDetailProblemDTO;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.GetRoomDetailResponse;
+import com.algorithmsolutionproject.algorithmsolution.dto.room.GetSolvedProblemResultResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.GetSubmissionsInRoomResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.StartSolveProblemResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.TimerEndResponse;
@@ -113,6 +114,13 @@ public class RoomService {
         List<Submission> submissions = submissionRepository.findByRoomIdAndUserIdAndProblemId(userId, roomId,
                 problemId);
         return GetSubmissionsInRoomResponse.from(submissions);
+    }
+
+    // 문제 풀이 결과 조회
+    @Transactional
+    public GetSolvedProblemResultResponse getSolveProblemResult(Integer roomId) {
+        List<Submission> result = submissionRepository.findLatestSubmissionsPerUserInRoom(roomId);
+        return GetSolvedProblemResultResponse.from(result);
     }
 
     // 방 저장

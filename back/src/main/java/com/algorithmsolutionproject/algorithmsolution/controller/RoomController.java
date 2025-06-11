@@ -7,6 +7,7 @@ import com.algorithmsolutionproject.algorithmsolution.dto.room.ExecuteCodeAndSto
 import com.algorithmsolutionproject.algorithmsolution.dto.room.ExecuteCodeAndStoreResultResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.GetAllRoomsResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.GetRoomDetailResponse;
+import com.algorithmsolutionproject.algorithmsolution.dto.room.GetSolvedProblemResultResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.GetSubmissionsInRoomResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.SubmitCodeRequest;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.SubmitCodeResponse;
@@ -115,5 +116,13 @@ public class RoomController {
         int userId = principal.userId();
         GetSubmissionsInRoomResponse response = roomService.getSubmissionsInRoom(userId, roomId, problemId);
         return ResponseEntity.ok(ApiResponse.success("제출 내역을 성공적으로 조회했습니다.", response));
+    }
+
+    // 문제 풀이 최종 결과
+    @GetMapping("/{roomId}/result")
+    public ResponseEntity<ApiResponse<GetSolvedProblemResultResponse>> getSolveProblemResult(
+            @PathVariable("roomId") Integer roomId) {
+        GetSolvedProblemResultResponse response = roomService.getSolveProblemResult(roomId);
+        return ResponseEntity.ok(ApiResponse.success("결과를 성공적으로 조회했습니다.", response));
     }
 }
