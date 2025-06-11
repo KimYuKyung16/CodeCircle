@@ -3,9 +3,12 @@ package com.algorithmsolutionproject.algorithmsolution.controller;
 import com.algorithmsolutionproject.algorithmsolution.dto.common.ApiResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.CreateRoomRequest;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.CreateRoomResponse;
+import com.algorithmsolutionproject.algorithmsolution.dto.room.ExecuteCodeAndStoreResultRequest;
+import com.algorithmsolutionproject.algorithmsolution.dto.room.ExecuteCodeAndStoreResultResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.GetAllRoomsResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.GetRoomDetailResponse;
 import com.algorithmsolutionproject.algorithmsolution.security.CustomUserPrincipal;
+import com.algorithmsolutionproject.algorithmsolution.service.CodeService;
 import com.algorithmsolutionproject.algorithmsolution.service.RoomService;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -28,6 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/apis/rooms")
 public class RoomController {
     private final RoomService roomService;
+    private final CodeService codeService;
 
     // 방 전체 조회
     @GetMapping
@@ -74,5 +78,16 @@ public class RoomController {
         int userId = principal.userId();
         roomService.endSolveProblem(roomId, userId);
         return ResponseEntity.ok(ApiResponse.success("문제 풀이가 종료되었습니다.", null));
+    }
+
+    // 코드 실행 결과 조회
+    @PostMapping("/{roomId}/problems/{problemId}/execution")
+    public ResponseEntity<ApiResponse<ExecuteCodeAndStoreResultResponse>> executeCodeAndStoreResult(
+            @PathVariable("roomId") Integer roomId,
+            @PathVariable("problemId") Integer problemId,
+            @RequestBody ExecuteCodeAndStoreResultRequest request
+    ) {
+        ExecuteCodeAndStoreResultResponse response = codeService.executeCode(roomId, problemId, request.code());
+        return ResponseEntity.ok(ApiResponse.success("코드 실행 결과입니다.", response));
     }
 }
