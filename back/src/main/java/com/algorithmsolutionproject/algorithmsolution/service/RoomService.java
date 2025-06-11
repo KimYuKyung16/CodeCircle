@@ -108,6 +108,7 @@ public class RoomService {
     }
 
     // 특정 문제에 대한 내 제출 내역 조회
+    @Transactional
     public GetSubmissionsInRoomResponse getSubmissionsInRoom(Integer userId, Integer roomId, Integer problemId) {
         List<Submission> submissions = submissionRepository.findByRoomIdAndUserIdAndProblemId(userId, roomId,
                 problemId);
