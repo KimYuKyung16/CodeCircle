@@ -1,6 +1,7 @@
 package com.algorithmsolutionproject.algorithmsolution.service;
 
 import com.algorithmsolutionproject.algorithmsolution.dto.judge.JudgeRequest;
+import com.algorithmsolutionproject.algorithmsolution.dto.judge.ProcessJudgeResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.problem.RunTestCaseDTO;
 import com.algorithmsolutionproject.algorithmsolution.dto.problem.TestCaseDTO;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.SubmitCodeResponse;
@@ -27,6 +28,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,6 +43,7 @@ public class CodeService {
     private final SubmissionRepository submissionRepository;
     private final ExecutionRepository executionRepository;
     private final MessageSendService messageSendService;
+    private final SimpMessagingTemplate messagingTemplate;
 
     // docker를 이용해서 코드 실행
     @Transactional
@@ -72,6 +75,8 @@ public class CodeService {
         execution.setStatus(Execution.Status.FINISH);
         execution.setResult(getFinalResult(results));
         executionRepository.save(execution);
+        ProcessJudgeResponse response = new ProcessJudgeResponse("실행 결과가 나왔습니다.");
+        messagingTemplate.convertAndSend("/topic/room/" + execution.getRoom().getId() + "/execution/result", response);
     }
 
     public String getFinalResult(List<RunTestCaseDTO> results) {
