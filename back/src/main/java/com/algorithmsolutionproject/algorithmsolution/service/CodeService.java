@@ -1,13 +1,15 @@
 package com.algorithmsolutionproject.algorithmsolution.service;
 
+import com.algorithmsolutionproject.algorithmsolution.dto.judge.JudgeRequest;
 import com.algorithmsolutionproject.algorithmsolution.dto.problem.RunTestCaseDTO;
 import com.algorithmsolutionproject.algorithmsolution.dto.problem.TestCaseDTO;
-import com.algorithmsolutionproject.algorithmsolution.dto.room.ExecuteCodeAndStoreResultResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.SubmitCodeResponse;
+import com.algorithmsolutionproject.algorithmsolution.entity.Execution;
 import com.algorithmsolutionproject.algorithmsolution.entity.Problem;
 import com.algorithmsolutionproject.algorithmsolution.entity.Room;
 import com.algorithmsolutionproject.algorithmsolution.entity.Submission;
 import com.algorithmsolutionproject.algorithmsolution.entity.User;
+import com.algorithmsolutionproject.algorithmsolution.repository.ExecutionRepository;
 import com.algorithmsolutionproject.algorithmsolution.repository.ProblemRepository;
 import com.algorithmsolutionproject.algorithmsolution.repository.RoomRepository;
 import com.algorithmsolutionproject.algorithmsolution.repository.SubmissionRepository;
@@ -37,15 +39,14 @@ public class CodeService {
     private final UserRepository userRepository;
     private final ProblemRepository problemRepository;
     private final SubmissionRepository submissionRepository;
+    private final ExecutionRepository executionRepository;
+    private final MessageSendService messageSendService;
 
     // docker를 이용해서 코드 실행
     @Transactional
-    public ExecuteCodeAndStoreResultResponse executeCode(Integer roomId, Integer problemId, String code) {
-        String language = getLanguageByRoomId(roomId);
-        List<TestCaseDTO> testcases = getTestCases(problemId);
-        List<RunTestCaseDTO> results = runTestCases(code, language, testcases);
-        log.info("최종 결과 = {}", results);
-        return ExecuteCodeAndStoreResultResponse.from(results);
+    public void executeCode(Integer userId, Integer roomId, Integer problemId,
+                            String code) {
+        saveExecution(userId, roomId, problemId, code);
     }
 
     // 코드 제출
@@ -53,6 +54,63 @@ public class CodeService {
     public SubmitCodeResponse submitCode(Integer userId, Integer roomId, Integer problemId, String code) {
         Submission submission = saveSubmission(userId, roomId, problemId, code);
         return new SubmitCodeResponse(submission.getId());
+    }
+
+    // 메시지큐에서 실행할 함수
+    public void processJudge(JudgeRequest request) {
+        Execution execution = executionRepository.findById(request.executionId())
+                .orElseThrow(() -> new EntityNotFoundException("실행 요청을 찾을 수 없습니다."));
+
+        execution.setStatus(Execution.Status.PROCESS);
+        executionRepository.save(execution);
+
+        List<TestCaseDTO> testcases = getTestCases(request.problemId());
+        List<RunTestCaseDTO> results = runTestCases(request.code(), request.language(), testcases);
+        log.info("최종 결과 = {}", results);
+
+        execution.setOutput(results);
+        execution.setStatus(Execution.Status.FINISH);
+        execution.setResult(getFinalResult(results));
+        executionRepository.save(execution);
+    }
+
+    public String getFinalResult(List<RunTestCaseDTO> results) {
+        for (RunTestCaseDTO result : results) {
+            if (!result.result().equals("성공")) {
+                return "실패";
+            }
+        }
+        return "성공";
+    }
+
+    // 실행 결과 초기 저장
+    public void saveExecution(Integer userId, Integer roomId, Integer problemId, String code) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+        Problem problem = problemRepository.findById(problemId)
+                .orElseThrow(() -> new RuntimeException("문제를 찾을 수 없습니다."));
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new RuntimeException("방을 찾을 수 없습니다."));
+
+        Execution execution = Execution.builder()
+                .user(user)
+                .problem(problem)
+                .room(room)
+                .code(code)
+                .language(room.getLanguage())
+                .status(Execution.Status.WAIT)
+                .build();
+
+        executionRepository.save(execution);
+
+        JudgeRequest request = JudgeRequest.builder()
+                .executionId(execution.getId())
+                .code(execution.getCode())
+                .language(execution.getLanguage())
+                .problemId(problemId)
+                .build();
+
+        messageSendService.sendJudgeRequest(request);
     }
 
     public Submission saveSubmission(Integer userId, Integer roomId, Integer problemId, String code) {
@@ -72,12 +130,6 @@ public class CodeService {
                 .build();
 
         return submissionRepository.save(submission);
-    }
-
-    private String getLanguageByRoomId(Integer roomId) {
-        return roomRepository.findById(roomId)
-                .orElseThrow(() -> new EntityNotFoundException("해당 방이 없습니다."))
-                .getLanguage();
     }
 
     private List<TestCaseDTO> getTestCases(Integer problemId) {
