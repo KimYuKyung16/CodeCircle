@@ -1,0 +1,23 @@
+# node_modules는 이미지에서 다시 설치하므로 제외
+node_modules
+
+# 빌드 결과물 제외 (있다면)
+dist
+build
+
+# Git 관련
+.git
+.gitignore
+
+# IDE 관련
+.vscode
+.idea
+
+# 환경 변수
+.env
+.env.*
+
+# 기타
+.DS_Store
+npm-debug.log
+yarn-error.log
