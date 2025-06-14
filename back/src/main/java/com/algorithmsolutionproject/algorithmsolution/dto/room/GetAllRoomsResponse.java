@@ -10,7 +10,9 @@ public record GetAllRoomsResponse(
         String title,
         String language,
         String status,
-        boolean isPrivate
+        boolean isPrivate,
+        String host,
+        Integer participantCount
 ) {
     public static GetAllRoomsResponse from(Room room) {
         return GetAllRoomsResponse.builder()
@@ -19,6 +21,10 @@ public record GetAllRoomsResponse(
                 .language(room.getLanguage())
                 .status(room.getStatus().name())
                 .isPrivate(room.getPassword() != null && !room.getPassword().isBlank())
+                .host(room.getHost() != null ? room.getHost().getUserName() : null)
+                .participantCount(
+                        room.getParticipants() != null ? room.getParticipants().size() : 0
+                )
                 .build();
     }
 

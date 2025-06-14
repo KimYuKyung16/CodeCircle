@@ -3,9 +3,11 @@ package com.algorithmsolutionproject.algorithmsolution.controller;
 import com.algorithmsolutionproject.algorithmsolution.dto.common.ApiResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.CreateRoomRequest;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.CreateRoomResponse;
+import com.algorithmsolutionproject.algorithmsolution.dto.room.EnterRoomRequest;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.ExecuteCodeAndStoreResultRequest;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.GetAllRoomsResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.GetRoomDetailResponse;
+import com.algorithmsolutionproject.algorithmsolution.dto.room.GetRoomParticipantsResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.GetSolvedProblemResultResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.GetSubmissionsInRoomResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.SubmitCodeRequest;
@@ -55,6 +57,17 @@ public class RoomController {
                 .body(ApiResponse.success("방이 성공적으로 생성되었습니다.", response));
     }
 
+    // 방 접속
+    @PostMapping("/{roomId}/enter")
+    public ResponseEntity<ApiResponse<Void>> enterRoom(Authentication authentication,
+                                                       @PathVariable("roomId") Integer roomId,
+                                                       @Valid @RequestBody EnterRoomRequest request) {
+        CustomUserPrincipal principal = (CustomUserPrincipal) authentication.getPrincipal();
+        int userId = principal.userId();
+        roomService.enterRoom(userId, roomId, request.password());
+        return ResponseEntity.ok(ApiResponse.success("방에 성공적으로 접속했습니다.", null));
+    }
+
     // 방 상세 조회
     @GetMapping("/{roomId}")
     public ResponseEntity<ApiResponse<GetRoomDetailResponse>> getRoomDetail(@PathVariable("roomId") Integer roomId) {
@@ -64,6 +77,17 @@ public class RoomController {
 
         GetRoomDetailResponse response = roomService.getRoomDetail(roomId);
         return ResponseEntity.ok(ApiResponse.success("방을 성공적으로 조회했습니다.", response));
+    }
+
+    // 방 참여자 조회
+    @GetMapping("/{roomId}/participants")
+    public ResponseEntity<ApiResponse<GetRoomParticipantsResponse>> getRoomParticipants(@PathVariable("roomId") Integer roomId) {
+        if (roomId == null) {
+            throw new IllegalArgumentException("roomId는 필수입니다.");
+        }
+
+        GetRoomParticipantsResponse response = roomService.getRoomParticipants(roomId);
+        return ResponseEntity.ok(ApiResponse.success("방 참여자들을 성공적으로 조회했습니다.", response));
     }
 
     // 문제풀이 시작

@@ -8,6 +8,8 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.util.List;
@@ -48,8 +50,15 @@ public class Room {
     @Column(name = "status", nullable = false)
     private RoomStatus status = RoomStatus.WAITING;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "host", referencedColumnName = "id", nullable = false)
+    private User host;
+
     @OneToMany(mappedBy = "room", fetch = FetchType.LAZY)
     private List<RoomProblem> roomProblems;
+
+    @OneToMany(mappedBy = "room", fetch = FetchType.LAZY)
+    private List<RoomParticipant> participants;
 
     public enum RoomStatus {
         WAITING,

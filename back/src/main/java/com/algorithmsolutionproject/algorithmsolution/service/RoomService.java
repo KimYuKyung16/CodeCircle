@@ -6,6 +6,7 @@ import com.algorithmsolutionproject.algorithmsolution.dto.room.EndSolveProblemRe
 import com.algorithmsolutionproject.algorithmsolution.dto.room.GetAllRoomsResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.GetRoomDetailProblemDTO;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.GetRoomDetailResponse;
+import com.algorithmsolutionproject.algorithmsolution.dto.room.GetRoomParticipantsResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.GetSolvedProblemResultResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.GetSubmissionsInRoomResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.StartSolveProblemResponse;
@@ -15,15 +16,18 @@ import com.algorithmsolutionproject.algorithmsolution.entity.RoomParticipant;
 import com.algorithmsolutionproject.algorithmsolution.entity.RoomProblem;
 import com.algorithmsolutionproject.algorithmsolution.entity.RoomUserId;
 import com.algorithmsolutionproject.algorithmsolution.entity.Submission;
+import com.algorithmsolutionproject.algorithmsolution.entity.User;
 import com.algorithmsolutionproject.algorithmsolution.repository.RoomParticipantRepository;
 import com.algorithmsolutionproject.algorithmsolution.repository.RoomProblemRepository;
 import com.algorithmsolutionproject.algorithmsolution.repository.RoomRepository;
 import com.algorithmsolutionproject.algorithmsolution.repository.SubmissionRepository;
+import com.algorithmsolutionproject.algorithmsolution.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -40,6 +44,7 @@ public class RoomService {
     private final SimpMessagingTemplate messagingTemplate;
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private final SubmissionRepository submissionRepository;
+    private final UserRepository userRepository;
 
     // 방 전체 조회
     @Transactional
@@ -60,6 +65,37 @@ public class RoomService {
         return new CreateRoomResponse(savedRoom.getId());
     }
 
+    // 방 접속
+    @Transactional
+    public void enterRoom(Integer userId, Integer roomId, String password) {
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 방입니다."));
+
+        if (room.getParticipants().size() >= 8) {
+            throw new IllegalArgumentException("수용 인원을 초과했습니다.");
+        }
+
+        // 패스워드가 있는 방일 경우
+        if (room.getPassword() != null && !room.getPassword().isBlank()) {
+            if (!room.getPassword().equals(password)) {
+                throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+            }
+        }
+
+        RoomUserId id = new RoomUserId(roomId, userId);
+        boolean alreadyUserExists = roomParticipantRepository.existsById(id);
+        if (!alreadyUserExists) {
+            RoomParticipant participant = RoomParticipant.builder()
+                    .id(id)
+                    .role(RoomParticipant.Role.PARTICIPANT)
+                    .build();
+            roomParticipantRepository.save(participant);
+        }
+
+        messagingTemplate.convertAndSend("/topic/room/" + roomId + "/participants");
+    }
+
+
     // 방 상세 조회
     @Transactional
     public GetRoomDetailResponse getRoomDetail(int roomId) {
@@ -67,6 +103,18 @@ public class RoomService {
                 .orElseThrow(() -> new EntityNotFoundException("해당 방이 없습니다."));
         List<GetRoomDetailProblemDTO> problems = roomProblemRepository.findProblemsByRoomId(roomId);
         return GetRoomDetailResponse.from(room, problems);
+    }
+
+    // 방 참여자 조회
+    @Transactional
+    public GetRoomParticipantsResponse getRoomParticipants(int roomId) {
+        List<RoomParticipant> participants = roomParticipantRepository.findWithParticipantUserByRoomId(roomId);
+
+        List<User> users = participants.stream()
+                .map(RoomParticipant::getUser)
+                .collect(Collectors.toList());
+
+        return GetRoomParticipantsResponse.from(users);
     }
 
     // 문제풀이 시작
