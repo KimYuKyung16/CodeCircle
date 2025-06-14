@@ -3,6 +3,7 @@ package com.algorithmsolutionproject.algorithmsolution.controller;
 import com.algorithmsolutionproject.algorithmsolution.dto.common.ApiResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.CreateRoomRequest;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.CreateRoomResponse;
+import com.algorithmsolutionproject.algorithmsolution.dto.room.EnterRoomRequest;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.ExecuteCodeAndStoreResultRequest;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.GetAllRoomsResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.GetRoomDetailResponse;
@@ -54,6 +55,17 @@ public class RoomController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(ApiResponse.success("방이 성공적으로 생성되었습니다.", response));
+    }
+
+    // 방 접속
+    @PostMapping("/{roomId}/enter")
+    public ResponseEntity<ApiResponse<Void>> enterRoom(Authentication authentication,
+                                                       @PathVariable("roomId") Integer roomId,
+                                                       @Valid @RequestBody EnterRoomRequest request) {
+        CustomUserPrincipal principal = (CustomUserPrincipal) authentication.getPrincipal();
+        int userId = principal.userId();
+        roomService.enterRoom(userId, roomId, request.password());
+        return ResponseEntity.ok(ApiResponse.success("방에 성공적으로 접속했습니다.", null));
     }
 
     // 방 상세 조회
