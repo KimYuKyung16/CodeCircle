@@ -1,6 +1,9 @@
+import { useUser } from '@hooks/useUser';
+
 export default function Header() {
+  const { data } = useUser();
   return (
-    <header className="bg-primary-950 flex flex-row justify-between border-b border-white px-7 py-6">
+    <header className="bg-primary-950 flex flex-row items-center justify-between border-b border-white px-7 py-3">
       <div className="flex gap-24">
         <span className="text-white">CodeCircle</span>
         <nav className="flex flex-row gap-14 text-white">
@@ -10,9 +13,17 @@ export default function Header() {
         </nav>
       </div>
       <div>
-        <a href="/login" className="text-white">
-          로그인
-        </a>
+        {data?.success ? (
+          <img
+            src="/images/avatar.png"
+            alt="userProfile"
+            className="aspect-square h-10 rounded-full"
+          />
+        ) : (
+          <a href="/login" className="text-white">
+            로그인
+          </a>
+        )}
       </div>
     </header>
   );
