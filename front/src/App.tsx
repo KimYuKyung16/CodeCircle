@@ -1,7 +1,18 @@
+import Home from '@pages/Home';
+import Login from '@pages/Login';
+import OAuthCallback from '@pages/Login/OAuthCallback';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+
 function App() {
   return (
     <>
-      <p className="text-2xl">test</p>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/oauth2/google/callback" element={<OAuthCallback />} />
+        </Routes>
+      </BrowserRouter>
     </>
   );
 }

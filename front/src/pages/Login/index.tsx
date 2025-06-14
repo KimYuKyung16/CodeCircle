@@ -18,7 +18,10 @@ export default function Login() {
               간편하게 시작하기
             </div>
             <div className="flex justify-center space-x-4">
-              <SNSButton type="google" />
+              <SNSButton
+                type="google"
+                href={'http://localhost:9090/oauth2/authorization/google'}
+              />
               <SNSButton type="github" />
             </div>
           </div>

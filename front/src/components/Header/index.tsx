@@ -1,6 +1,6 @@
 export default function Header() {
   return (
-    <header className="bg-primary-950 flex flex-row justify-between px-7 py-8">
+    <header className="bg-primary-950 flex flex-row justify-between border-b border-white px-7 py-6">
       <div className="flex gap-24">
         <span className="text-white">CodeCircle</span>
         <nav className="flex flex-row gap-14 text-white">
@@ -10,7 +10,9 @@ export default function Header() {
         </nav>
       </div>
       <div>
-        <button className="text-white">로그인</button>
+        <a href="/login" className="text-white">
+          로그인
+        </a>
       </div>
     </header>
   );
