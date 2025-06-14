@@ -6,24 +6,29 @@ import com.algorithmsolutionproject.algorithmsolution.dto.room.EndSolveProblemRe
 import com.algorithmsolutionproject.algorithmsolution.dto.room.GetAllRoomsResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.GetRoomDetailProblemDTO;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.GetRoomDetailResponse;
+import com.algorithmsolutionproject.algorithmsolution.dto.room.GetRoomParticipantsResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.GetSolvedProblemResultResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.GetSubmissionsInRoomResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.StartSolveProblemResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.TimerEndResponse;
+import com.algorithmsolutionproject.algorithmsolution.dto.socket.EnterRoomResponse;
 import com.algorithmsolutionproject.algorithmsolution.entity.Room;
 import com.algorithmsolutionproject.algorithmsolution.entity.RoomParticipant;
 import com.algorithmsolutionproject.algorithmsolution.entity.RoomProblem;
 import com.algorithmsolutionproject.algorithmsolution.entity.RoomUserId;
 import com.algorithmsolutionproject.algorithmsolution.entity.Submission;
+import com.algorithmsolutionproject.algorithmsolution.entity.User;
 import com.algorithmsolutionproject.algorithmsolution.repository.RoomParticipantRepository;
 import com.algorithmsolutionproject.algorithmsolution.repository.RoomProblemRepository;
 import com.algorithmsolutionproject.algorithmsolution.repository.RoomRepository;
 import com.algorithmsolutionproject.algorithmsolution.repository.SubmissionRepository;
+import com.algorithmsolutionproject.algorithmsolution.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -40,6 +45,7 @@ public class RoomService {
     private final SimpMessagingTemplate messagingTemplate;
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private final SubmissionRepository submissionRepository;
+    private final UserRepository userRepository;
 
     // 방 전체 조회
     @Transactional
@@ -67,6 +73,18 @@ public class RoomService {
                 .orElseThrow(() -> new EntityNotFoundException("해당 방이 없습니다."));
         List<GetRoomDetailProblemDTO> problems = roomProblemRepository.findProblemsByRoomId(roomId);
         return GetRoomDetailResponse.from(room, problems);
+    }
+
+    // 방 참여자 조회
+    @Transactional
+    public GetRoomParticipantsResponse getRoomParticipants(int roomId) {
+        List<RoomParticipant> participants = roomParticipantRepository.findWithParticipantUserByRoomId(roomId);
+
+        List<User> users = participants.stream()
+                .map(RoomParticipant::getUser)
+                .collect(Collectors.toList());
+
+        return GetRoomParticipantsResponse.from(users);
     }
 
     // 문제풀이 시작

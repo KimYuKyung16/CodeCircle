@@ -55,9 +55,14 @@ public class RoomParticipant {
     }
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("roomId") // ✅ EmbeddedId 안의 필드명과 맞춰야 함
+    @MapsId("roomId")
     @JoinColumn(name = "room_id")
     private Room room;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId("userId")
+    @JoinColumn(name = "user_id")
+    private User user;
 
     public void leave() {
         this.isLeaved = true;
