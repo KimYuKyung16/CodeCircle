@@ -57,6 +57,9 @@ public class Room {
     @OneToMany(mappedBy = "room", fetch = FetchType.LAZY)
     private List<RoomProblem> roomProblems;
 
+    @OneToMany(mappedBy = "room", fetch = FetchType.LAZY)
+    private List<RoomParticipant> participants;
+
     public enum RoomStatus {
         WAITING,
         PLAYING,
