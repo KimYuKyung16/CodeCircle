@@ -72,6 +72,8 @@ public class RoomService {
     // 방 접속
     @Transactional
     public void enterRoom(Integer userId, Integer roomId, String password) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 유저입니다."));
         Room room = roomRepository.findById(roomId)
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 방입니다."));
 
@@ -92,6 +94,8 @@ public class RoomService {
             RoomParticipant participant = RoomParticipant.builder()
                     .id(id)
                     .role(RoomParticipant.Role.PARTICIPANT)
+                    .room(room)
+                    .user(user)
                     .build();
             roomParticipantRepository.save(participant);
         }
