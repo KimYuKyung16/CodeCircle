@@ -4,6 +4,7 @@ import com.algorithmsolutionproject.algorithmsolution.dto.room.CreateRoomRequest
 import com.algorithmsolutionproject.algorithmsolution.dto.room.CreateRoomResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.EndSolveProblemResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.GetAllRoomsResponse;
+import com.algorithmsolutionproject.algorithmsolution.dto.room.GetExecutionListInRoomResonse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.GetRoomDetailProblemDTO;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.GetRoomDetailResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.GetRoomParticipantsResponse;
@@ -11,12 +12,14 @@ import com.algorithmsolutionproject.algorithmsolution.dto.room.GetSolvedProblemR
 import com.algorithmsolutionproject.algorithmsolution.dto.room.GetSubmissionsInRoomResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.StartSolveProblemResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.TimerEndResponse;
+import com.algorithmsolutionproject.algorithmsolution.entity.Execution;
 import com.algorithmsolutionproject.algorithmsolution.entity.Room;
 import com.algorithmsolutionproject.algorithmsolution.entity.RoomParticipant;
 import com.algorithmsolutionproject.algorithmsolution.entity.RoomProblem;
 import com.algorithmsolutionproject.algorithmsolution.entity.RoomUserId;
 import com.algorithmsolutionproject.algorithmsolution.entity.Submission;
 import com.algorithmsolutionproject.algorithmsolution.entity.User;
+import com.algorithmsolutionproject.algorithmsolution.repository.ExecutionRepository;
 import com.algorithmsolutionproject.algorithmsolution.repository.RoomParticipantRepository;
 import com.algorithmsolutionproject.algorithmsolution.repository.RoomProblemRepository;
 import com.algorithmsolutionproject.algorithmsolution.repository.RoomRepository;
@@ -45,6 +48,7 @@ public class RoomService {
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private final SubmissionRepository submissionRepository;
     private final UserRepository userRepository;
+    private final ExecutionRepository executionRepository;
 
     // 방 전체 조회
     @Transactional
@@ -59,15 +63,21 @@ public class RoomService {
         if (userId == null) {
             throw new IllegalArgumentException("userId는 필수입니다.");
         }
-        Room savedRoom = saveRoom(createRoomRequest);
+        User host = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
+        Room savedRoom = saveRoom(createRoomRequest, host);
         addSelectedProblems(savedRoom.getId(), createRoomRequest.problems());
-        registerHost(savedRoom.getId(), userId);
+        System.out.println("1");
+        registerHost(savedRoom, host);
+        System.out.println("2");
         return new CreateRoomResponse(savedRoom.getId());
     }
 
     // 방 접속
     @Transactional
     public void enterRoom(Integer userId, Integer roomId, String password) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 유저입니다."));
         Room room = roomRepository.findById(roomId)
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 방입니다."));
 
@@ -88,11 +98,13 @@ public class RoomService {
             RoomParticipant participant = RoomParticipant.builder()
                     .id(id)
                     .role(RoomParticipant.Role.PARTICIPANT)
+                    .room(room)
+                    .user(user)
                     .build();
             roomParticipantRepository.save(participant);
         }
 
-        messagingTemplate.convertAndSend("/topic/room/" + roomId + "/participants");
+        messagingTemplate.convertAndSend("/topic/room/" + roomId + "/participants", "update");
     }
 
 
@@ -159,9 +171,17 @@ public class RoomService {
     // 특정 문제에 대한 내 제출 내역 조회
     @Transactional
     public GetSubmissionsInRoomResponse getSubmissionsInRoom(Integer userId, Integer roomId, Integer problemId) {
-        List<Submission> submissions = submissionRepository.findByRoomIdAndUserIdAndProblemId(userId, roomId,
+        List<Submission> submissions = submissionRepository.findByRoomIdAndUserIdAndProblemId(roomId, userId,
                 problemId);
         return GetSubmissionsInRoomResponse.from(submissions);
+    }
+
+    // 특정 문제에 대한 내 실행 내역 조회
+    @Transactional
+    public GetExecutionListInRoomResonse getExecutionListInRoom(Integer userId, Integer roomId, Integer problemId) {
+        List<Execution> executions = executionRepository.findByRoomIdAndUserIdAndProblemId(roomId, userId,
+                problemId);
+        return GetExecutionListInRoomResonse.from(executions);
     }
 
     // 문제 풀이 결과 조회
@@ -172,7 +192,7 @@ public class RoomService {
     }
 
     // 방 저장
-    private Room saveRoom(CreateRoomRequest request) {
+    private Room saveRoom(CreateRoomRequest request, User host) {
         if (request.title() == null || request.title().isBlank()) {
             throw new IllegalArgumentException("방 제목은 필수입니다.");
         }
@@ -188,6 +208,7 @@ public class RoomService {
                 .duration(request.duration())
                 .language(request.language())
                 .password(request.password())
+                .host(host)
                 .build();
 
         return roomRepository.save(room);
@@ -204,10 +225,12 @@ public class RoomService {
     }
 
     // 방장으로 등록
-    private void registerHost(Integer roomId, Integer userId) {
-        RoomUserId id = new RoomUserId(roomId, userId);
+    private void registerHost(Room room, User user) {
+        RoomUserId id = new RoomUserId(room.getId(), user.getId());
         RoomParticipant host = RoomParticipant.builder()
                 .id(id)
+                .room(room)
+                .user(user)
                 .role(RoomParticipant.Role.HOST)
                 .build();
         roomParticipantRepository.save(host);

@@ -6,6 +6,7 @@ import com.algorithmsolutionproject.algorithmsolution.dto.room.CreateRoomRespons
 import com.algorithmsolutionproject.algorithmsolution.dto.room.EnterRoomRequest;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.ExecuteCodeAndStoreResultRequest;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.GetAllRoomsResponse;
+import com.algorithmsolutionproject.algorithmsolution.dto.room.GetExecutionListInRoomResonse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.GetRoomDetailResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.GetRoomParticipantsResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.GetSolvedProblemResultResponse;
@@ -119,6 +120,17 @@ public class RoomController {
         int userId = principal.userId();
         codeService.executeCode(userId, roomId, problemId, request.code());
         return ResponseEntity.ok(ApiResponse.success("코드를 실행하고 있습니다.", null));
+    }
+
+    // 특정 문제에 대한 내 코드 실행 내역 조회
+    @GetMapping("/{roomId}/problems/{problemId}/executions")
+    public ResponseEntity<ApiResponse<GetExecutionListInRoomResonse>> getExecutionListInRoom(Authentication authentication,
+                                                                                         @PathVariable("roomId") Integer roomId,
+                                                                                         @PathVariable("problemId") Integer problemId) {
+        CustomUserPrincipal principal = (CustomUserPrincipal) authentication.getPrincipal();
+        int userId = principal.userId();
+        GetExecutionListInRoomResonse response = roomService.getExecutionListInRoom(userId, roomId, problemId);
+        return ResponseEntity.ok(ApiResponse.success("실행 내역을 성공적으로 조회했습니다.", response));
     }
 
     // 코드 제출

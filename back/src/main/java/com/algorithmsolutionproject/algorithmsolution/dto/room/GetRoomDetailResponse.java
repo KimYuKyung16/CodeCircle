@@ -10,6 +10,7 @@ public record GetRoomDetailResponse(
         String title,
         Integer duration,
         String language,
+        String host,
         List<GetRoomDetailProblemDTO> problems
 ) {
     public static GetRoomDetailResponse from(Room room, List<GetRoomDetailProblemDTO> problems) {
@@ -18,6 +19,7 @@ public record GetRoomDetailResponse(
                 .title(room.getTitle())
                 .duration(room.getDuration())
                 .language(room.getLanguage())
+                .host(room.getHost().getUserName())
                 .problems(problems)
                 .build();
     }
