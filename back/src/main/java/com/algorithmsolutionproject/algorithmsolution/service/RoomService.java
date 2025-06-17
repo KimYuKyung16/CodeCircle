@@ -4,6 +4,7 @@ import com.algorithmsolutionproject.algorithmsolution.dto.room.CreateRoomRequest
 import com.algorithmsolutionproject.algorithmsolution.dto.room.CreateRoomResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.EndSolveProblemResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.GetAllRoomsResponse;
+import com.algorithmsolutionproject.algorithmsolution.dto.room.GetExecutionListInRoomResonse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.GetRoomDetailProblemDTO;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.GetRoomDetailResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.GetRoomParticipantsResponse;
@@ -11,12 +12,14 @@ import com.algorithmsolutionproject.algorithmsolution.dto.room.GetSolvedProblemR
 import com.algorithmsolutionproject.algorithmsolution.dto.room.GetSubmissionsInRoomResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.StartSolveProblemResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.TimerEndResponse;
+import com.algorithmsolutionproject.algorithmsolution.entity.Execution;
 import com.algorithmsolutionproject.algorithmsolution.entity.Room;
 import com.algorithmsolutionproject.algorithmsolution.entity.RoomParticipant;
 import com.algorithmsolutionproject.algorithmsolution.entity.RoomProblem;
 import com.algorithmsolutionproject.algorithmsolution.entity.RoomUserId;
 import com.algorithmsolutionproject.algorithmsolution.entity.Submission;
 import com.algorithmsolutionproject.algorithmsolution.entity.User;
+import com.algorithmsolutionproject.algorithmsolution.repository.ExecutionRepository;
 import com.algorithmsolutionproject.algorithmsolution.repository.RoomParticipantRepository;
 import com.algorithmsolutionproject.algorithmsolution.repository.RoomProblemRepository;
 import com.algorithmsolutionproject.algorithmsolution.repository.RoomRepository;
@@ -45,6 +48,7 @@ public class RoomService {
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private final SubmissionRepository submissionRepository;
     private final UserRepository userRepository;
+    private final ExecutionRepository executionRepository;
 
     // 방 전체 조회
     @Transactional
@@ -170,6 +174,14 @@ public class RoomService {
         List<Submission> submissions = submissionRepository.findByRoomIdAndUserIdAndProblemId(roomId, userId,
                 problemId);
         return GetSubmissionsInRoomResponse.from(submissions);
+    }
+
+    // 특정 문제에 대한 내 실행 내역 조회
+    @Transactional
+    public GetExecutionListInRoomResonse getExecutionListInRoom(Integer userId, Integer roomId, Integer problemId) {
+        List<Execution> executions = executionRepository.findByRoomIdAndUserIdAndProblemId(roomId, userId,
+                problemId);
+        return GetExecutionListInRoomResonse.from(executions);
     }
 
     // 문제 풀이 결과 조회
