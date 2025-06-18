@@ -19,17 +19,20 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         OAuth2User oAuth2User = super.loadUser(userRequest);
 
-        String email = oAuth2User.getAttribute("email");
-        String name = oAuth2User.getAttribute("name");
+        String provider = userRequest.getClientRegistration().getRegistrationId();
+        String email = null;
+        String name = null;
+        String profile = null;
 
-        User user = userRepository.findByEmail(email)
-                .orElseGet(() -> userRepository.save(
-                        User.builder()
-                                .email(email)
-                                .userName(name)
-                                .build()
-                ));
+        switch (provider) {
+            case "google" -> {
+                email = oAuth2User.getAttribute("email");
+                name = oAuth2User.getAttribute("name");
+                profile = oAuth2User.getAttribute("picture");
+            }
+            default -> throw new OAuth2AuthenticationException("지원하지 않는 로그인 공급자입니다: " + provider);
+        }
 
-        return new CustomOAuth2User(oAuth2User, user.getId());
+        return new CustomOAuth2User(oAuth2User, email, name, profile);
     }
 }
