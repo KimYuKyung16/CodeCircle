@@ -42,15 +42,17 @@ public class JwtTokenProvider {
 
         String email = claims.getSubject();
         int userId = claims.get("userId", Integer.class);
+        String profile = claims.get("profile", String.class);
 
-        CustomUserPrincipal principal = new CustomUserPrincipal(userId, email);
+        CustomUserPrincipal principal = new CustomUserPrincipal(userId, email, profile);
 
         return new UsernamePasswordAuthenticationToken(principal, null, Collections.emptyList());
     }
 
-    public String generateAccessToken(String email, Integer userId) {
+    public String generateAccessToken(String email, Integer userId, String profile) {
         Claims claims = Jwts.claims().setSubject(email);
         claims.put("userId", userId);
+        claims.put("profile", profile);
 
         return Jwts.builder()
                 .setClaims(claims)

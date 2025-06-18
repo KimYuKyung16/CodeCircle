@@ -2,20 +2,17 @@ package com.algorithmsolutionproject.algorithmsolution.security;
 
 import java.util.Collection;
 import java.util.Map;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
-public record CustomOAuth2User(OAuth2User delegate, Integer userId) implements OAuth2User, AuthenticatedUser {
-    @Override
-    public Integer userId() {
-        return userId;
-    }
-
-    @Override
-    public String email() {
-        return (String) delegate.getAttribute("email");
-    }
-
+public record CustomOAuth2User(
+        OAuth2User delegate,
+        String email,
+        String userName,
+        String profile
+) implements OAuth2User {
 
     @Override
     public Map<String, Object> getAttributes() {
@@ -29,14 +26,6 @@ public record CustomOAuth2User(OAuth2User delegate, Integer userId) implements O
 
     @Override
     public String getName() {
-        return getEmail();
-    }
-
-    public String getEmail() {
-        return (String) delegate.getAttribute("email");
-    }
-
-    public String getUsername() {
-        return (String) delegate.getAttribute("name");
+        return email; // OAuth2User.getName()이 요구하는 고유 식별자
     }
 }

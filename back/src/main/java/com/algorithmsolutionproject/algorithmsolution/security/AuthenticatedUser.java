@@ -4,4 +4,6 @@ public interface AuthenticatedUser {
     Integer userId();
 
     String email();
+
+    String profile();
 }

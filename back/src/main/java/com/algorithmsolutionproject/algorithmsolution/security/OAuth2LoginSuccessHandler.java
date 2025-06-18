@@ -24,19 +24,21 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
     public void onAuthenticationSuccess(HttpServletRequest request,
                                         HttpServletResponse response,
                                         Authentication authentication) throws IOException, ServletException {
-        OAuth2User principal = (OAuth2User) authentication.getPrincipal();
-        String email = principal.getAttribute("email");
-        String name = principal.getAttribute("name");
+        CustomOAuth2User oAuthUser = (CustomOAuth2User) authentication.getPrincipal();
+        String email = oAuthUser.email();
+        String name = oAuthUser.userName();
+        String profile = oAuthUser.profile();
 
         User user = userRepository.findByEmail(email)
                 .orElseGet(() -> userRepository.save(
                         User.builder()
                                 .email(email)
                                 .userName(name)
+                                .profile(profile)
                                 .build()
                 ));
 
-        String accessToken = jwtTokenProvider.generateAccessToken(email, user.getId());
-        response.sendRedirect("http://localhost:3000/oauth2/google/callback?accessToken=" + accessToken);
+        String accessToken = jwtTokenProvider.generateAccessToken(email, user.getId(), user.getProfile());
+        response.sendRedirect("http://localhost:3001/oauth2/google/callback?accessToken=" + accessToken);
     }
 }
