@@ -1,4 +1,4 @@
-package com.algorithmsolutionproject.algorithmsolution.controller;
+package com.algorithmsolutionproject.algorithmsolution.controller.room;
 
 import com.algorithmsolutionproject.algorithmsolution.dto.common.ApiResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.GetSolvedProblemResultResponse;
