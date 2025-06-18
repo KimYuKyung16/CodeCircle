@@ -1,6 +1,6 @@
 package com.algorithmsolutionproject.algorithmsolution.repository;
 
-import com.algorithmsolutionproject.algorithmsolution.dto.room.GetRoomDetailProblemDTO;
+import com.algorithmsolutionproject.algorithmsolution.dto.room.detail.GetRoomDetailProblemDTO;
 import com.algorithmsolutionproject.algorithmsolution.entity.RoomProblem;
 import com.algorithmsolutionproject.algorithmsolution.entity.RoomProblemId;
 import java.util.List;

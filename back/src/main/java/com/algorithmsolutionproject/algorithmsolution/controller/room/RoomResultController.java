@@ -1,7 +1,7 @@
 package com.algorithmsolutionproject.algorithmsolution.controller.room;
 
 import com.algorithmsolutionproject.algorithmsolution.dto.common.ApiResponse;
-import com.algorithmsolutionproject.algorithmsolution.dto.room.GetSolvedProblemResultResponse;
+import com.algorithmsolutionproject.algorithmsolution.dto.room.solve.GetSolvedProblemResultResponse;
 import com.algorithmsolutionproject.algorithmsolution.service.room.RoomResultService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

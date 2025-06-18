@@ -1,4 +1,4 @@
-package com.algorithmsolutionproject.algorithmsolution.dto.room;
+package com.algorithmsolutionproject.algorithmsolution.dto.room.detail;
 
 import com.algorithmsolutionproject.algorithmsolution.entity.Room;
 import java.util.List;

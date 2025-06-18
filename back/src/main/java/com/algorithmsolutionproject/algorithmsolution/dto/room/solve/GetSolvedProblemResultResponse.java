@@ -1,5 +1,6 @@
-package com.algorithmsolutionproject.algorithmsolution.dto.room;
+package com.algorithmsolutionproject.algorithmsolution.dto.room.solve;
 
+import com.algorithmsolutionproject.algorithmsolution.dto.room.submission.SubmissionDTO;
 import com.algorithmsolutionproject.algorithmsolution.entity.Submission;
 import java.util.List;
 

@@ -1,8 +1,8 @@
 package com.algorithmsolutionproject.algorithmsolution.controller.room;
 
 import com.algorithmsolutionproject.algorithmsolution.dto.common.ApiResponse;
-import com.algorithmsolutionproject.algorithmsolution.dto.room.EnterRoomRequest;
-import com.algorithmsolutionproject.algorithmsolution.dto.room.GetRoomParticipantsResponse;
+import com.algorithmsolutionproject.algorithmsolution.dto.room.participant.EnterRoomRequest;
+import com.algorithmsolutionproject.algorithmsolution.dto.room.participant.GetRoomParticipantsResponse;
 import com.algorithmsolutionproject.algorithmsolution.security.CustomUserPrincipal;
 import com.algorithmsolutionproject.algorithmsolution.service.room.RoomParticipationService;
 import jakarta.validation.Valid;

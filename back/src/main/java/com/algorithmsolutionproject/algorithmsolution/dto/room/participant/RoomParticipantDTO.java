@@ -1,4 +1,4 @@
-package com.algorithmsolutionproject.algorithmsolution.dto.room;
+package com.algorithmsolutionproject.algorithmsolution.dto.room.participant;
 
 import com.algorithmsolutionproject.algorithmsolution.entity.User;
 

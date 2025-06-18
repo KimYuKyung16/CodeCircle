@@ -1,4 +1,4 @@
-package com.algorithmsolutionproject.algorithmsolution.dto.room;
+package com.algorithmsolutionproject.algorithmsolution.dto.room.submission;
 
 import com.algorithmsolutionproject.algorithmsolution.entity.Submission;
 import java.time.LocalDateTime;

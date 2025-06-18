@@ -1,10 +1,10 @@
 package com.algorithmsolutionproject.algorithmsolution.service.room;
 
-import com.algorithmsolutionproject.algorithmsolution.dto.room.CreateRoomRequest;
-import com.algorithmsolutionproject.algorithmsolution.dto.room.CreateRoomResponse;
-import com.algorithmsolutionproject.algorithmsolution.dto.room.GetAllRoomsResponse;
-import com.algorithmsolutionproject.algorithmsolution.dto.room.GetRoomDetailProblemDTO;
-import com.algorithmsolutionproject.algorithmsolution.dto.room.GetRoomDetailResponse;
+import com.algorithmsolutionproject.algorithmsolution.dto.room.create.CreateRoomRequest;
+import com.algorithmsolutionproject.algorithmsolution.dto.room.create.CreateRoomResponse;
+import com.algorithmsolutionproject.algorithmsolution.dto.room.detail.GetAllRoomsResponse;
+import com.algorithmsolutionproject.algorithmsolution.dto.room.detail.GetRoomDetailProblemDTO;
+import com.algorithmsolutionproject.algorithmsolution.dto.room.detail.GetRoomDetailResponse;
 import com.algorithmsolutionproject.algorithmsolution.entity.Room;
 import com.algorithmsolutionproject.algorithmsolution.entity.RoomParticipant;
 import com.algorithmsolutionproject.algorithmsolution.entity.RoomProblem;

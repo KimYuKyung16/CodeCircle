@@ -1,10 +1,10 @@
 package com.algorithmsolutionproject.algorithmsolution.controller.room;
 
 import com.algorithmsolutionproject.algorithmsolution.dto.common.ApiResponse;
-import com.algorithmsolutionproject.algorithmsolution.dto.room.CreateRoomRequest;
-import com.algorithmsolutionproject.algorithmsolution.dto.room.CreateRoomResponse;
-import com.algorithmsolutionproject.algorithmsolution.dto.room.GetAllRoomsResponse;
-import com.algorithmsolutionproject.algorithmsolution.dto.room.GetRoomDetailResponse;
+import com.algorithmsolutionproject.algorithmsolution.dto.room.create.CreateRoomRequest;
+import com.algorithmsolutionproject.algorithmsolution.dto.room.create.CreateRoomResponse;
+import com.algorithmsolutionproject.algorithmsolution.dto.room.detail.GetAllRoomsResponse;
+import com.algorithmsolutionproject.algorithmsolution.dto.room.detail.GetRoomDetailResponse;
 import com.algorithmsolutionproject.algorithmsolution.security.CustomUserPrincipal;
 import com.algorithmsolutionproject.algorithmsolution.service.room.RoomService;
 import jakarta.validation.Valid;
