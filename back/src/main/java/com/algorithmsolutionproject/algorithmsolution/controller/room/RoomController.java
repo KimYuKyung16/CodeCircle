@@ -1,4 +1,4 @@
-package com.algorithmsolutionproject.algorithmsolution.controller;
+package com.algorithmsolutionproject.algorithmsolution.controller.room;
 
 import com.algorithmsolutionproject.algorithmsolution.dto.common.ApiResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.CreateRoomRequest;
@@ -6,7 +6,7 @@ import com.algorithmsolutionproject.algorithmsolution.dto.room.CreateRoomRespons
 import com.algorithmsolutionproject.algorithmsolution.dto.room.GetAllRoomsResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.GetRoomDetailResponse;
 import com.algorithmsolutionproject.algorithmsolution.security.CustomUserPrincipal;
-import com.algorithmsolutionproject.algorithmsolution.service.RoomService;
+import com.algorithmsolutionproject.algorithmsolution.service.room.RoomService;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;

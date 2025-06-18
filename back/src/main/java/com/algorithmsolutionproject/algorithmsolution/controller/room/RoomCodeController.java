@@ -1,4 +1,4 @@
-package com.algorithmsolutionproject.algorithmsolution.controller;
+package com.algorithmsolutionproject.algorithmsolution.controller.room;
 
 import com.algorithmsolutionproject.algorithmsolution.dto.common.ApiResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.room.ExecuteCodeAndStoreResultRequest;
@@ -8,7 +8,6 @@ import com.algorithmsolutionproject.algorithmsolution.dto.room.SubmitCodeRequest
 import com.algorithmsolutionproject.algorithmsolution.dto.room.SubmitCodeResponse;
 import com.algorithmsolutionproject.algorithmsolution.security.CustomUserPrincipal;
 import com.algorithmsolutionproject.algorithmsolution.service.CodeService;
-import com.algorithmsolutionproject.algorithmsolution.service.RoomService;
 import com.algorithmsolutionproject.algorithmsolution.service.room.RoomCodeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
