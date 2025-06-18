@@ -4,7 +4,7 @@ import com.algorithmsolutionproject.algorithmsolution.dto.judge.JudgeRequest;
 import com.algorithmsolutionproject.algorithmsolution.dto.judge.ProcessJudgeResponse;
 import com.algorithmsolutionproject.algorithmsolution.dto.problem.RunTestCaseDTO;
 import com.algorithmsolutionproject.algorithmsolution.dto.problem.TestCaseDTO;
-import com.algorithmsolutionproject.algorithmsolution.dto.room.SubmitCodeResponse;
+import com.algorithmsolutionproject.algorithmsolution.dto.room.submission.SubmitCodeResponse;
 import com.algorithmsolutionproject.algorithmsolution.entity.Execution;
 import com.algorithmsolutionproject.algorithmsolution.entity.Problem;
 import com.algorithmsolutionproject.algorithmsolution.entity.Room;

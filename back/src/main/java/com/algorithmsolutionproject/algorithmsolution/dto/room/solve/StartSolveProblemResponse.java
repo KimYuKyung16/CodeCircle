@@ -1,4 +1,4 @@
-package com.algorithmsolutionproject.algorithmsolution.dto.room;
+package com.algorithmsolutionproject.algorithmsolution.dto.room.solve;
 
 public record StartSolveProblemResponse(
         String message,

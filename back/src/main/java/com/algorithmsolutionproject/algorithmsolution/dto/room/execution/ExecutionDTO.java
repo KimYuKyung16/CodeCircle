@@ -1,4 +1,4 @@
-package com.algorithmsolutionproject.algorithmsolution.dto.room;
+package com.algorithmsolutionproject.algorithmsolution.dto.room.execution;
 
 import com.algorithmsolutionproject.algorithmsolution.dto.problem.RunTestCaseDTO;
 import com.algorithmsolutionproject.algorithmsolution.entity.Execution;

@@ -1,4 +1,4 @@
-package com.algorithmsolutionproject.algorithmsolution.dto.room;
+package com.algorithmsolutionproject.algorithmsolution.dto.room.create;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;

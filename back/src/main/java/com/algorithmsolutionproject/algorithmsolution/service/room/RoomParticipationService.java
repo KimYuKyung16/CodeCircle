@@ -1,6 +1,6 @@
 package com.algorithmsolutionproject.algorithmsolution.service.room;
 
-import com.algorithmsolutionproject.algorithmsolution.dto.room.GetRoomParticipantsResponse;
+import com.algorithmsolutionproject.algorithmsolution.dto.room.participant.GetRoomParticipantsResponse;
 import com.algorithmsolutionproject.algorithmsolution.entity.Room;
 import com.algorithmsolutionproject.algorithmsolution.entity.RoomParticipant;
 import com.algorithmsolutionproject.algorithmsolution.entity.RoomUserId;

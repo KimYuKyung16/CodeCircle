@@ -1,8 +1,8 @@
 package com.algorithmsolutionproject.algorithmsolution.service.room;
 
-import com.algorithmsolutionproject.algorithmsolution.dto.room.EndSolveProblemResponse;
-import com.algorithmsolutionproject.algorithmsolution.dto.room.StartSolveProblemResponse;
-import com.algorithmsolutionproject.algorithmsolution.dto.room.TimerEndResponse;
+import com.algorithmsolutionproject.algorithmsolution.dto.room.solve.EndSolveProblemResponse;
+import com.algorithmsolutionproject.algorithmsolution.dto.room.solve.StartSolveProblemResponse;
+import com.algorithmsolutionproject.algorithmsolution.dto.room.solve.TimerEndResponse;
 import com.algorithmsolutionproject.algorithmsolution.entity.Room;
 import com.algorithmsolutionproject.algorithmsolution.entity.RoomParticipant;
 import com.algorithmsolutionproject.algorithmsolution.entity.RoomUserId;

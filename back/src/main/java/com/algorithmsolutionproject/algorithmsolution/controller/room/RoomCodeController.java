@@ -1,11 +1,11 @@
 package com.algorithmsolutionproject.algorithmsolution.controller.room;
 
 import com.algorithmsolutionproject.algorithmsolution.dto.common.ApiResponse;
-import com.algorithmsolutionproject.algorithmsolution.dto.room.ExecuteCodeAndStoreResultRequest;
-import com.algorithmsolutionproject.algorithmsolution.dto.room.GetExecutionListInRoomResonse;
-import com.algorithmsolutionproject.algorithmsolution.dto.room.GetSubmissionsInRoomResponse;
-import com.algorithmsolutionproject.algorithmsolution.dto.room.SubmitCodeRequest;
-import com.algorithmsolutionproject.algorithmsolution.dto.room.SubmitCodeResponse;
+import com.algorithmsolutionproject.algorithmsolution.dto.room.execution.ExecuteCodeAndStoreResultRequest;
+import com.algorithmsolutionproject.algorithmsolution.dto.room.execution.GetExecutionListInRoomResonse;
+import com.algorithmsolutionproject.algorithmsolution.dto.room.submission.GetSubmissionsInRoomResponse;
+import com.algorithmsolutionproject.algorithmsolution.dto.room.submission.SubmitCodeRequest;
+import com.algorithmsolutionproject.algorithmsolution.dto.room.submission.SubmitCodeResponse;
 import com.algorithmsolutionproject.algorithmsolution.security.CustomUserPrincipal;
 import com.algorithmsolutionproject.algorithmsolution.service.CodeService;
 import com.algorithmsolutionproject.algorithmsolution.service.room.RoomCodeService;

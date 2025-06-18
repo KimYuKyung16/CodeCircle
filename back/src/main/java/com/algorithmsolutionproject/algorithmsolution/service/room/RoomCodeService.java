@@ -1,7 +1,7 @@
 package com.algorithmsolutionproject.algorithmsolution.service.room;
 
-import com.algorithmsolutionproject.algorithmsolution.dto.room.GetExecutionListInRoomResonse;
-import com.algorithmsolutionproject.algorithmsolution.dto.room.GetSubmissionsInRoomResponse;
+import com.algorithmsolutionproject.algorithmsolution.dto.room.execution.GetExecutionListInRoomResonse;
+import com.algorithmsolutionproject.algorithmsolution.dto.room.submission.GetSubmissionsInRoomResponse;
 import com.algorithmsolutionproject.algorithmsolution.entity.Execution;
 import com.algorithmsolutionproject.algorithmsolution.entity.Submission;
 import com.algorithmsolutionproject.algorithmsolution.repository.ExecutionRepository;

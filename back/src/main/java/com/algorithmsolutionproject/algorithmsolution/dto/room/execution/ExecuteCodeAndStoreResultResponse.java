@@ -1,4 +1,4 @@
-package com.algorithmsolutionproject.algorithmsolution.dto.room;
+package com.algorithmsolutionproject.algorithmsolution.dto.room.execution;
 
 import com.algorithmsolutionproject.algorithmsolution.dto.problem.RunTestCaseDTO;
 import java.util.List;
