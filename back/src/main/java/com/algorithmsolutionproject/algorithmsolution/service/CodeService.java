@@ -203,6 +203,10 @@ public class CodeService {
                 fileName = "main.cpp";
                 imageName = "cpp-runner-image";
             }
+            case "javascript" -> {
+                fileName = "main.js";
+                imageName = "javascript-runner-image";
+            }
             default -> throw new IllegalArgumentException("지원하지 않는 언어입니다: " + language);
         }
 
