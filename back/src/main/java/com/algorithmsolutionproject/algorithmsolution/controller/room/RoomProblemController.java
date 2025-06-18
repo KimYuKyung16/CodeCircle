@@ -3,6 +3,7 @@ package com.algorithmsolutionproject.algorithmsolution.controller;
 import com.algorithmsolutionproject.algorithmsolution.dto.common.ApiResponse;
 import com.algorithmsolutionproject.algorithmsolution.security.CustomUserPrincipal;
 import com.algorithmsolutionproject.algorithmsolution.service.RoomService;
+import com.algorithmsolutionproject.algorithmsolution.service.room.RoomProblemService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -17,12 +18,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("/apis/rooms")
 public class RoomProblemController {
-    private final RoomService roomService;
+    private final RoomProblemService roomProblemService;
 
     // 문제풀이 시작
     @PatchMapping("/{roomId}/start")
     public ResponseEntity<ApiResponse<Void>> startSolveProblem(@PathVariable("roomId") Integer roomId) {
-        roomService.startSolveProblem(roomId);
+        roomProblemService.startSolveProblem(roomId);
         return ResponseEntity.ok(ApiResponse.success("문제 풀이가 시작되었습니다.", null));
     }
 
@@ -32,7 +33,7 @@ public class RoomProblemController {
                                                              @PathVariable("roomId") Integer roomId) {
         CustomUserPrincipal principal = (CustomUserPrincipal) authentication.getPrincipal();
         int userId = principal.userId();
-        roomService.endSolveProblem(roomId, userId);
+        roomProblemService.endSolveProblem(roomId, userId);
         return ResponseEntity.ok(ApiResponse.success("문제 풀이가 종료되었습니다.", null));
     }
 }

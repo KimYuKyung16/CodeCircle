@@ -44,11 +44,7 @@ public class RoomService {
     private final RoomRepository roomRepository;
     private final RoomProblemRepository roomProblemRepository;
     private final RoomParticipantRepository roomParticipantRepository;
-    private final SimpMessagingTemplate messagingTemplate;
-    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-    private final SubmissionRepository submissionRepository;
     private final UserRepository userRepository;
-    private final ExecutionRepository executionRepository;
 
     // 방 전체 조회
     @Transactional
@@ -73,41 +69,6 @@ public class RoomService {
         return new CreateRoomResponse(savedRoom.getId());
     }
 
-    // 방 접속
-    @Transactional
-    public void enterRoom(Integer userId, Integer roomId, String password) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("존재하지 않는 유저입니다."));
-        Room room = roomRepository.findById(roomId)
-                .orElseThrow(() -> new RuntimeException("존재하지 않는 방입니다."));
-
-        if (room.getParticipants().size() >= 8) {
-            throw new IllegalArgumentException("수용 인원을 초과했습니다.");
-        }
-
-        // 패스워드가 있는 방일 경우
-        if (room.getPassword() != null && !room.getPassword().isBlank()) {
-            if (!room.getPassword().equals(password)) {
-                throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
-            }
-        }
-
-        RoomUserId id = new RoomUserId(roomId, userId);
-        boolean alreadyUserExists = roomParticipantRepository.existsById(id);
-        if (!alreadyUserExists) {
-            RoomParticipant participant = RoomParticipant.builder()
-                    .id(id)
-                    .role(RoomParticipant.Role.PARTICIPANT)
-                    .room(room)
-                    .user(user)
-                    .build();
-            roomParticipantRepository.save(participant);
-        }
-
-        messagingTemplate.convertAndSend("/topic/room/" + roomId + "/participants", "update");
-    }
-
-
     // 방 상세 조회
     @Transactional
     public GetRoomDetailResponse getRoomDetail(int roomId) {
@@ -115,80 +76,6 @@ public class RoomService {
                 .orElseThrow(() -> new EntityNotFoundException("해당 방이 없습니다."));
         List<GetRoomDetailProblemDTO> problems = roomProblemRepository.findProblemsByRoomId(roomId);
         return GetRoomDetailResponse.from(room, problems);
-    }
-
-    // 방 참여자 조회
-    @Transactional
-    public GetRoomParticipantsResponse getRoomParticipants(int roomId) {
-        List<RoomParticipant> participants = roomParticipantRepository.findWithParticipantUserByRoomId(roomId);
-
-        List<User> users = participants.stream()
-                .map(RoomParticipant::getUser)
-                .collect(Collectors.toList());
-
-        return GetRoomParticipantsResponse.from(users);
-    }
-
-    // 문제풀이 시작
-    @Transactional
-    public void startSolveProblem(Integer roomId) {
-        Room room = roomRepository.findById(roomId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 방입니다."));
-//        if (!room.isHost(userId)) {
-//            throw new AccessDeniedException("방장만 게임을 시작할 수 있습니다.");
-//        }
-        if (room.getStatus() != Room.RoomStatus.WAITING) {
-            throw new IllegalStateException("이미 시작된 게임입니다.");
-        }
-        room.setStatus(Room.RoomStatus.PLAYING);
-        roomRepository.save(room);
-
-        long now = System.currentTimeMillis();
-        int duration = room.getDuration();
-
-        StartSolveProblemResponse response = new StartSolveProblemResponse("게임이 시작되었습니다", now, duration);
-        messagingTemplate.convertAndSend("/topic/room/" + roomId + "/start", response);
-
-        scheduler.schedule(() -> {
-            messagingTemplate.convertAndSend("/topic/room/" + roomId + "/end", new TimerEndResponse("타이머 종료"));
-        }, duration, TimeUnit.SECONDS);
-    }
-
-    // 문제풀이 종료
-    @Transactional
-    public void endSolveProblem(Integer roomId, Integer userId) {
-        RoomUserId id = new RoomUserId(roomId, userId);
-        RoomParticipant participant = roomParticipantRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("해당 참여자를 찾을 수 없습니다."));
-
-        participant.setSolved(true);
-        roomParticipantRepository.save(participant);
-
-        EndSolveProblemResponse response = new EndSolveProblemResponse("풀이를 완료한 사람이 있습니다.");
-        messagingTemplate.convertAndSend("/topic/room/" + roomId + "/result", response);
-    }
-
-    // 특정 문제에 대한 내 제출 내역 조회
-    @Transactional
-    public GetSubmissionsInRoomResponse getSubmissionsInRoom(Integer userId, Integer roomId, Integer problemId) {
-        List<Submission> submissions = submissionRepository.findByRoomIdAndUserIdAndProblemId(roomId, userId,
-                problemId);
-        return GetSubmissionsInRoomResponse.from(submissions);
-    }
-
-    // 특정 문제에 대한 내 실행 내역 조회
-    @Transactional
-    public GetExecutionListInRoomResonse getExecutionListInRoom(Integer userId, Integer roomId, Integer problemId) {
-        List<Execution> executions = executionRepository.findByRoomIdAndUserIdAndProblemId(roomId, userId,
-                problemId);
-        return GetExecutionListInRoomResonse.from(executions);
-    }
-
-    // 문제 풀이 결과 조회
-    @Transactional
-    public GetSolvedProblemResultResponse getSolveProblemResult(Integer roomId) {
-        List<Submission> result = submissionRepository.findLatestSubmissionsPerUserInRoom(roomId);
-        return GetSolvedProblemResultResponse.from(result);
     }
 
     // 방 저장
