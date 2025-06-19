@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -52,7 +53,7 @@ public class RoomCodeController {
 
     // 코드 실행
     @PostMapping("/{roomId}/problems/{problemId}/execution")
-    public ResponseEntity<ApiResponse<Void>> executeCodeAndStoreResult(
+    public ResponseEntity<ApiResponse<Map<String, Boolean>>> executeCodeAndStoreResult(
             Authentication authentication,
             @PathVariable("roomId") Integer roomId,
             @PathVariable("problemId") Integer problemId,
@@ -60,8 +61,9 @@ public class RoomCodeController {
     ) {
         CustomUserPrincipal principal = (CustomUserPrincipal) authentication.getPrincipal();
         int userId = principal.userId();
-        codeService.executeCode(userId, roomId, problemId, request.code());
-        return ResponseEntity.ok(ApiResponse.success("코드를 실행하고 있습니다.", null));
+        Map<String, Boolean> response = codeService.executeCode(userId, roomId, problemId, request.code());
+        String message = response.get("cached") ? "이미 실행한 코드입니다." : "코드를 실행하고 있습니다.";
+        return ResponseEntity.ok(ApiResponse.success(message, response));
     }
 
     // 코드 제출
