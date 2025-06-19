@@ -1,6 +1,4 @@
 {
-  "project": {
-    "rootDirectory": "front"
-  }
+  "rootDirectory": "front",
   "ignoreCommand": "git diff --quiet HEAD^ HEAD -- . ':(glob)front/**'"
 }
