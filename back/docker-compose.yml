@@ -1,0 +1,28 @@
+version: '3'
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    hostname: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+  java-runner:
+    build:
+      context: ./docker/java-runner
+    image: java-runner-image
+
+  python-runner:
+    build:
+      context: ./docker/python-runner
+    image: python-runner-image
+
+  cpp-runner:
+    build:
+      context: ./docker/cpp-runner
+    image: cpp-runner-image
+
+  javascript-runner:
+    build:
+      context: ./docker/javascript-runner
+    image: javascript-runner-image
