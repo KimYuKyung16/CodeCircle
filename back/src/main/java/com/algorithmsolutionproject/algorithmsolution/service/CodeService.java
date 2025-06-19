@@ -21,13 +21,21 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,12 +52,24 @@ public class CodeService {
     private final ExecutionRepository executionRepository;
     private final MessageSendService messageSendService;
     private final SimpMessagingTemplate messagingTemplate;
+    private final RedisTemplate<String, String> redisTemplate;
 
     // docker를 이용해서 코드 실행
     @Transactional
-    public void executeCode(Integer userId, Integer roomId, Integer problemId,
-                            String code) {
+    public Map<String, Boolean> executeCode(Integer userId, Integer roomId, Integer problemId,
+                                                         String code) {
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new RuntimeException("방을 찾을 수 없습니다."));
+        String hashKey = generateCodeHash(room.getLanguage(), code);
+        Optional<String> cached = getCachedResult(hashKey);
+
+        if (cached.isPresent()) {
+            log.info("캐싱된 결과 = {}", cached.get());
+            return Map.of("cached", true);
+        }
+        redisTemplate.opsForValue().set(hashKey, "문제 풀이", Duration.ofMinutes(30));
         saveExecution(userId, roomId, problemId, code);
+        return Map.of("cached", false);
     }
 
     // 코드 제출
@@ -273,4 +293,26 @@ public class CodeService {
 
         return output;
     }
+
+    private String generateCodeHash(String language, String code) {
+        String target = language + "|" + code;
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(target.getBytes(StandardCharsets.UTF_8));
+            return Base64.getEncoder().encodeToString(hash);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("Hashing error", e);
+        }
+    }
+
+    private Optional<String> getCachedResult(String hashKey) {
+        try {
+            String result = redisTemplate.opsForValue().get(hashKey);
+            return Optional.ofNullable(result);
+        } catch (Exception e) {
+            log.error("Redis 조회 중 예외 발생", e);
+            return Optional.empty();
+        }
+    }
+
 }
