@@ -10,7 +10,7 @@ import org.springframework.data.repository.query.Param;
 
 public interface RoomProblemRepository extends JpaRepository<RoomProblem, RoomProblemId> {
     @Query("""
-                SELECT new com.algorithmsolutionproject.algorithmsolution.dto.room.GetRoomDetailProblemDTO(
+                SELECT new com.algorithmsolutionproject.algorithmsolution.dto.room.detail.GetRoomDetailProblemDTO(
                     p.id, p.num, p.title
                 )
                 FROM RoomProblem rp
